@@ -1,0 +1,246 @@
+{% load edf_filters %}
+{% comment %}To show the growl{% endcomment %}
+{% if estatus != None %}
+    <div id="element-status" data-heading="{{ estatus.name }}" data-message="{{ estatus.message }}"
+         style="display: none"></div>
+{% endif %}
+<div class="col-xs-4" style="height: inherit; padding: 0px;">
+    <h3 id="polygon-title" class="nonbreaking-title" style="margin-bottom: 13px;
+    {% comment %}color: #009688{% endcomment %}">Polygons</h3>
+    <div id="polygon-map"
+         style="height: 270px; width: calc(100% - 12px); margin-bottom: 10px; border-radius: 4px;
+         border: 1px solid #cccccc"></div>
+    <div id="polygon-listwrapper" class="nano" style="height: calc(100% - 315px);">
+        <div class="nano-content">
+            {% for polygon in polygons %}
+                <div class="g-listitem" onclick="showPolygon(this);" data-polygon="{{ polygon.json }}">
+                    <span style="font-weight: 400">{{ polygon.name }}</span><br>
+                    <span style="font-size: 11px; font-weight: 100">{{ polygon.time | date:"D, d M Y - h:i:s A" }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="col-xs-4"
+     style="border-left: 1px solid #ddd; height: inherit; padding: 0px 0px 0px 12px;">
+    <h3 id="constraint-title" class="nonbreaking-title" style="margin-bottom: 13px;
+    {% comment %}color: #F9A825{% endcomment %}">Constraints</h3>
+    <form id='constraint-form' role="form" action="/constraints" method="post">
+        {% csrf_token %}
+        <input id="form-type" name="form-type" type="hidden" value="constraint">
+        <div id="constraint-alert-holder" style="align-content: center; margin-right: 12px; display: none;"
+             class="alert alert-danger fade in" role="alert">
+            <a href="#" class="close" onclick="$('#constraint-alert-holder').hide();"
+               aria-label="close">&times;</a>
+            <span id="constraint-alert-message">Something went wrong while saving the constraint.</span>
+        </div>
+        <div style="height: 270px; width: calc(100% - 12px); margin-bottom: 10px;">
+            <span style="font-weight: 400">Constraints help to filter the unprocessed raw data.</span><br>
+            <div style="margin-top: 10px;" class="form-group">
+                <select id="constraint-table" name="constraint-table" data-live-search="true"
+                        class="selectpicker show-menu-arrow show-tick" title="Choose a table"
+                        data-size="5" data-width="100%">
+                </select>
+            </div>
+            <div style="margin-top: 10px;" class="radio">
+                <label style="padding-bottom: 10px">
+                    <input type="radio" name="condition-type" onclick="chooseConstraint('simple');" value="simple"
+                           required checked>
+                    Simple
+                </label>
+                <div style="width: calc(100% - 44px); margin: 0px 20px 0px 20px" class="input-group">
+                    <select id='feature-label' name='feature-label'
+                            class="selectpicker form-control show-menu-arrow show-tick"
+                            data-size="5" title="feature" data-width="40%" data-live-search="true">
+                    </select>
+                    <select id='feature-op' name='feature-op'
+                            class="selectpicker form-control show-menu-arrow"
+                            data-size="6" data-width="20%">
+                        <option value="<=">&le;</option>
+                        <option value="<">&lt;</option>
+                        <option value=">=">&ge;</option>
+                        <option value=">">&gt;</option>
+                        <option value="!=">&ne;</option>
+                        <option value="=" selected>=</option>
+                    </select>
+                    <input type="hidden" name="feature-type" id="feature-type">
+                    <input type="text" class="form-control" id="feature-value" data-provide="typeahead"
+                           autocomplete="off" name="feature-value"
+                           style="width: 40%; margin-left: -2px; border-bottom-right-radius: 4px;
+                               border-top-right-radius: 4px;"
+                           placeholder="value"/>
+                </div>
+            </div>
+            <div style="margin-top: 10px;" class="radio">
+                <label style="padding-bottom: 10px">
+                    <input type="radio" name="condition-type" onclick="chooseConstraint('complex');" value="complex">
+                    Complex
+                </label>
+                <div style="width: calc(100% - 44px); margin: 0px 20px 0px 20px" class="input-group">
+                    <select id='constraint-left' name='constraint-left'
+                            class="selectpicker form-control show-menu-arrow show-tick"
+                            data-size="5" title="constraint" data-width="40%" data-live-search="true" disabled>
+                    </select>
+                    <select id='joint' name='joint'
+                            class="selectpicker form-control show-menu-arrow"
+                            data-size="5" data-width="20%" disabled>
+                        <option value="and">and</option>
+                        <option value="or">or</option>
+                    </select>
+                    <select id='constraint-right' name='constraint-right'
+                            class="selectpicker form-control show-menu-arrow show-tick"
+                            data-size="5" title="constraint" data-width="40%" data-live-search="true" disabled>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group" style="margin-top: 20px">
+                <input type="text" class="form-control" id="constraint-name" name="constraint-name"
+                       placeholder="Name this constraint" required>
+                  <span class="input-group-btn">
+                    <button class="btn btn-secondary" type="button" onclick="$('#constraint-form').submit();"
+                            style="width: 100px; background-color: #F9A825; color:white">Create
+                    </button>
+                  </span>
+            </div>
+        </div>
+    </form>
+    <div id="condition-listwrapper" class="nano" style="height: calc(100% - 315px);">
+        <div id="condition-listview" class="nano-content">
+            {% for condition in conditions %}
+                <div id="condid-{{ condition.id }}" data-id="{{ condition.id }}" class="y-listitem"
+                     onclick="showConstraint(this);">
+                    <span style="font-weight: 400">{{ condition.name }}</span><br>
+                    <span style="font-size: 11px; font-weight: 100">{{ condition.time | date:"D, d M Y - h:i:s A" }}</span>
+                    <div style="font-size: 14px; font-weight: 300; margin-top: 10px;"
+                         id="expression-{{ condition.id }}" class="collapse">
+                        Table - {{ condition.table }} <br/>
+                        Expression - {{ condition | str_condition }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="col-xs-4"
+     style="border-left: 1px solid #ddd; height: inherit; margin-right: -15px; padding: 0px 0px 0px 12px;">
+    <h3 id="schedule-title" class="nonbreaking-title" style="margin-bottom: 13px;">Schedules</h3>
+    <form id='schedule-form' role="form" action="/schedule" method="post">
+        {% csrf_token %}
+        <input id="form-type" name="form-type" type="hidden" value="schedule">
+        <div id="schedule-alert-holder" style="align-content: center; margin-right: 12px; display: none;"
+             class="alert alert-danger fade in" role="alert">
+            <a href="#" class="close" onclick="$('#schedule-alert-holder').hide();"
+               aria-label="close">&times;</a>
+            <span id="schedule-alert-message">Something went wrong while saving the schedule.</span>
+        </div>
+        <div style="height: 270px; width: calc(100% - 12px); margin-bottom: 10px;">
+        <span style="font-weight: 400;">
+            Schedules aid in running your workflows automatically.
+        </span><br/>
+            <div class="row" style="margin: 35px 0px 10px 0px;">
+                <div class="col-xs-6" style="padding: 0px 5px 0px 0px;">
+                    <div class="form-group" style="margin-bottom: 0px;">
+                        <div class='input-group date' id='schedule-start'>
+                            <input id='schedule-start-input' name='schedule-start' type='text' class="form-control"
+                                   placeholder="Start date?" style="background-color: #FFFFFF" readonly/>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6" style="padding: 0px 0px 0px 5px;">
+                    <select id='schedule-repeat' name='schedule-repeat'
+                            class="selectpicker form-control show-menu-arrow show-tick"
+                            data-size="6" title="Repeat type?">
+                        <option value="none">Doesn't Repeat</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="margin: 20px 0px 10px 0px;">
+                <div class="col-xs-6" style="padding: 0px 3px 0px 0px;">
+                    <div class="input-group">
+                        <input class="form-control" type="text" disabled value="Every"
+                               style="width: 33%; cursor: auto; background-color: #eceeef; border: 1px solid #ccc;"/>
+                        <input type="text" class="form-control" placeholder="#" id="schedule-custom-count"
+                               name="schedule-custom-count"
+                               style="width: calc(22% + 1px); margin-left: -1px;" disabled/>
+                        <select id='schedule-custom-repeat' name='schedule-custom-repeat'
+                                class="selectpicker form-control show-menu-arrow show-tick"
+                                data-size="5" data-width="45%" disabled>
+                            <option value="day" selected>Day(s)</option>
+                            <option value="week">Week(s)</option>
+                            <option value="month">Month(s)</option>
+                            <option value="year">Year(s)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-6" style="padding: 0px 0px 0px 5px;">
+                    <select id='schedule-week-repeat' name='schedule-week-repeat'
+                            class="selectpicker form-control show-menu-arrow show-tick"
+                            data-size="5" title="Select Days" multiple disabled>
+                        <option value="monday">Monday</option>
+                        <option value="tuesday">Tuesday</option>
+                        <option value="wednesday">Wednesday</option>
+                        <option value="thursday">Thursday</option>
+                        <option value="friday">Friday</option>
+                        <option value="saturday">Saturday</option>
+                        <option value="sunday">Sunday</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="margin: 20px 0px 7px 0px;">
+                <div class="col-xs-6" style="padding: 0px 5px 0px 0px;">
+                    <select id='schedule-end' name='schedule-end'
+                            class="selectpicker form-control show-menu-arrow show-tick"
+                            data-size="5" title="End type?">
+                        <option value="forever">Forever</option>
+                        <option value="date">Until a date</option>
+                        <option value="count">Number of times</option>
+                    </select>
+                </div>
+                <div class="col-xs-6" style="padding: 0px 0px 0px 5px;">
+                    <div class="form-group">
+                        <div class='input-group date' id='schedule-until'>
+                            <input name='schedule-until' type='text' class="form-control" placeholder="End date?"
+                                   id="schedule-until-input" style="background-color: #FFFFFF" readonly disabled/>
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                        </div>
+                        <input type="text" class="form-control hidden"
+                               id="schedule-count" name="schedule-count"
+                               placeholder="Repetition count" value="1"/>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group" style="margin-top: 25px;">
+                <input name='schedule-name' id='schedule-name' type="text" class="form-control"
+                       placeholder="Name this schedule" required>
+              <span class="input-group-btn">
+                <button class="btn btn-secondary" type="button" onclick="$('#schedule-form').submit();"
+                        style="width: 100px; background-color: #039BE5; color:white;">Create
+                </button>
+              </span>
+            </div>
+        </div>
+    </form>
+    <div id="schedule-listwrapper" class="nano" style="height: calc(100% - 315px);">
+        <div id="schedule-listview" class="nano-content">
+            {% for schedule in schedules %}
+                <div id="sid-{{ schedule.id }}" data-id="{{ schedule.id }}" class="b-listitem"
+                     onclick="showSchedule(this);">
+                    <span style="font-weight: 400">{{ schedule.name }}</span><br>
+                    <span style="font-size: 11px; font-weight: 100">{{ schedule.time | date:"D, d M Y - h:i:s A" }}</span>
+                    <div style="font-size: 14px; font-weight: 300; margin-top: 10px;"
+                         id="schedule-{{ schedule.id }}" class="collapse">{{ schedule | string }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

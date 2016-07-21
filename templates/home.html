@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+    <title>Home</title>
+{% endblock %}
+{% block headers %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+{% endblock %}
+{% block content %}
+
+    <input id="searchPlace" class="controls hidden" type="text" placeholder="Search a location"
+           xmlns="http://www.w3.org/1999/html"/>
+    <div id='mapDiv' class="fixed-height"></div>
+
+    <div id="spinner" class="spinner"><img src="/static/images/spinner.gif" height="50px" width="50px"></div>
+    <div class="g-sign-in hidden">
+        <p style="font-size: 18px; font-weight: 400; margin-bottom: 10px">Columbus makes use of the Google Earth
+            Engine and needs your basic information to access it.</p><br/>
+        <span class="label">Sign in with:</span>
+
+        <div class="button">
+            <span class="icon"><img src="/static/images/g-icon.png" height="28px" width="28px"></span>
+            <span class="wordmark"><img src="/static/images/g-wordmark.png" height="39px" width="80px"></span>
+        </div>
+    </div>
+
+    <div id='optionsDiv' class="col-md-6 hidden fixed-height-w-overflow">
+        <form role="form">
+            <div class="form-group">
+                <label class="heading">Available Localities</label><br/>
+
+                <div style="display:inline-block">
+                    <select id="locality" class="selectpicker show-menu-arrow show-tick" data-size="5"
+                            title="Choose a locality">
+                    </select>
+                    <button id='fetchLocality' type="button" class="btn theme-bg-border marginleft">Bring it up!
+                    </button>
+                </div>
+            </div>
+            <label class="heading">Available Features</label>&nbsp;<a href="#" id="hideFeatures" title="Hide"
+                                                                      style="text-decoration: none">
+            <span class="glyphicon glyphicon-eye-close icon-theme"></span>
+        </a><a href="#" id="showFeatures" title="Show" class="hidden" style="text-decoration: none">
+            <span class="glyphicon glyphicon-eye-open icon-theme"></span>
+        </a><br/>
+            <div id="features" class="form-group">
+            </div>
+            <div id="feature_ch4" class="hidden">
+                <label id="ch4_heading" class="heading">Methane</label><br/>
+
+                <p><b>&lt;= 2.0 :</b>Yellow &nbsp;&nbsp;&nbsp;&nbsp; <b>&gt; 2.0 and &lt;= 2.5 :</b>Green &nbsp;&nbsp;&nbsp;&nbsp;
+                    <b>&gt; 2.5 and &lt;= 3.0 :</b>Pink &nbsp;&nbsp;&nbsp;&nbsp; <b>&gt; 3.0 :</b>Red </p>
+            </div>
+            <div id="ttr" class="hidden">
+                <label><b>Time to Response: </b></label>
+            </div>
+            <div id="ttp" class="hidden">
+                <label><b>Time to Process: </b></label>
+            </div>
+        </form>
+        <div id="chart">
+            <label class="heading">Polygon Overview</label><br/>
+            <label class="sub-heading" style="padding-top: 2px;">Statistics</label><br/>
+            <div id="stats">
+                Draw a polygon on the map to see its statistics here
+            </div>
+            <br/>
+            <div id="chart-container"></div>
+            <br/>
+            <div id="charttype">
+                <select id="polygonid" class="selectpicker show-menu-arrow show-tick" data-width="30%"
+                        data-size="5" title="Choose a Polygon">
+                </select>
+                <label style="padding-left: 10px"> </label>
+                <select id="chartid" class="selectpicker show-menu-arrow show-tick" data-width="25%">
+                    <option value="line">Line Chart</option>
+                    <option value="column">Column Chart</option>
+                    <option value="areaspline">Area Spline</option>
+                </select>
+                <label style="padding-left: 10px"> </label>
+                <select id="xaxis" class="selectpicker show-menu-arrow show-tick" data-width="25%"
+                        data-size="5" title="Choose X-Axis">
+                    <option>epoch_time</option>
+                    <option>datetime</option>
+                </select>
+                <button id='show-chart' type="button" class="btn theme-bg-border marginleft">Show!</button>
+            </div>
+            <div id="yaxisdiv">
+                <label class="sub-heading">Y-Axis</label> <a href="#" id="addY"><span
+                    class="glyphicon glyphicon-plus-sign icon-theme"></span></a>
+
+                <div id="yaxes">
+                    <select id="y1" class="selectpicker show-menu-arrow show-tick" data-width="24%"
+                            data-size="5" title="Choose a feature">
+                    </select>
+                </div>
+            </div>
+            <br/><br/>
+            <div id="chart_div"></div>
+        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="polygon-modal" role="dialog" data-keyboard="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    {% comment %}<div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <label class="heading">Name this Polygon</label>
+                    </div>{% endcomment %}
+                    <div class="modal-body" style="padding-top: 5px">
+                        <label class="sub-heading">Name this Polygon</label>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <input type="text" class="form-control" id="polygon-name" placeholder="type polygon name here"/>
+                        <button id="save-polygon" type="button" class="btn theme-bg-border"
+                                style="padding: 5px 10px 5px 10px; margin-top: 15px;">Save
+                        </button>
+                    </div>
+                    {% comment %}<div class="modal-footer" style="padding: 5px;">
+                        <button type="button" class="btn theme-bg-border" data-dismiss="modal">Save</button>
+                    </div>{% endcomment %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block bodyscripts %}
+    <script src="{%  static  'js/columbus-home.js'%}"></script>
+    <!-- Loading the Google Maps API. -->
+    <script src="https://maps.google.com/maps/api/js?libraries=places,drawing,visualization&callback=initMap"
+            async defer>
+    </script>
+    <!-- Loading compiled Earth Engine JavaScript client library. -->
+    <script src="{% static 'js/ee_api_js.js' %}"></script>
+{% endblock %}

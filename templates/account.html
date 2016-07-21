@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+    <title>My Account</title>
+{% endblock %}
+{% block headers %}
+    <script src="{% static 'js/bootstrap-validator.js' %}"></script>
+{% endblock headers %}
+{% block content %}
+    <form role="form" data-toggle="validator" method="post" action="/updateac">
+        {% csrf_token %}
+        <div class="col-md-12">
+            <br><br>
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-6">
+                    {% if error != None %}
+                        <div style="align-content: center;" class="alert alert-danger fade in">
+                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                            {{ error }}
+                        </div>
+                    {% endif %}
+                    {% if info != None %}
+                        <div style="align-content: center;" class="alert alert-info fade in">
+                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                            {{ info }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-3"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-4">
+                    <h4>User Details</h4>
+                    <div class="form-group">
+                        <label class="sub-heading" style="padding-bottom: 0px" for="fname">First Name<span style='color: red'>*</span></label>
+                        <input type="fname" class="form-control" id="fname" name="fname" required
+                               value="{{ user.first_name }}"/>
+                        <span class="help-block with-errors"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="sub-heading" style="padding-bottom: 0px" for="lname">Last Name<span style='color: red'>*</span></label>
+                        <input type="lname" class="form-control" id="lname" required name="lname"
+                               value="{{ user.last_name }}">
+                        <span class="help-block with-errors"></span>
+                    </div>
+                    <div class="form-group has-feedback">
+                        <label class="sub-heading" style="padding-bottom: 0px" for="eaddress">Email Address<span style='color: red'>*</span></label>
+                        <input type="email" class="form-control" id="eaddress" data-minlength="3" name="eaddress"
+                               value="{{ user.email }}" data-error="Bruh, that email address is invalid"
+                               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$">
+                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                        <span class="help-block with-errors"></span>
+                        <input type="password" style="display:none">
+                    </div>
+                    <br/>
+                </div>
+                <div class="col-md-4">
+                    <h4>Change Password</h4>
+                    <div class="form-group">
+                        <label class="sub-heading" style="padding-bottom: 0px" for="pwd">New Password<span style='color: red'>*</span></label>
+                        <input type="password" placeholder="6 - 15 characters" class="form-control" maxlength="15"
+                               data-minlength="6" id="pwd" name="pwd" autocomplete="off" required>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="sub-heading" style="padding-bottom: 0px" for="rpwd">Retype Password<span style='color: red'>*</span></label>
+                        <input type="password" placeholder="6 - 15 characters" class="form-control" maxlength="15"
+                               data-minlength="6" id="rpwd" name="rpwd" data-match="#pwd"
+                               data-match-error="Whoops, these don't match" required>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="sub-heading" style="padding-bottom: 0px" for="lastlogin">Last Login</label>
+                        <input type="text" class="form-control" id="lastlogin" readonly
+                               value="{{ user.last_login }}">
+                    </div>
+                    <br/>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-5"></div>
+                <div class="col-md-2">
+                    <div style="text-align: center; padding-top: 15px">
+                        <button type="submit" class="btn btn-default">Update</button>
+                        <button type="reset" class="btn btn-default">Reset</button>
+                    </div>
+                </div>
+                <div class="col-md-5"></div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

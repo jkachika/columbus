@@ -1,0 +1,163 @@
+/*
+Author: Charlotte Dann
+Source: http://codepen.io/pouretrebelle/pen/HzvCl?utm_source=bypeople
+This is a compiled version obtained from codepen.io
+*/
+
+aside {
+    color: white;
+    font-family: "Roboto Light";
+    cursor: pointer;
+    font-size: 10px;
+    bottom: 12px;
+    margin-left: -8px;
+    line-height: 15px;
+    position: relative;
+    width: auto;
+    display: inline-block;
+    padding: 2px 5px 2px 5px;
+}
+
+/*aside:hover {
+    top: -1px;
+}*/
+
+/*aside:active {
+    top: 1px;
+}*/
+
+aside.diamond {
+    background-color: #C6ED8D;
+}
+
+aside.diamond:after, aside.diamond:before {
+    border-color: transparent #C6ED8D;
+}
+
+aside.diamond:before {
+    left: -17px;
+    border-width: 17px 17px 17px 0;
+}
+
+aside.diamond:after {
+    right: -17px;
+    border-width: 17px 0 17px 17px;
+}
+
+aside.green-ribbon {
+    background-color: #009688;
+}
+
+aside.green-ribbon:before, aside.green-ribbon:after {
+    top: 5px;
+    z-index: -10;
+}
+
+aside.green-ribbon:before {
+    border-color: #00635a #00635a #00635a transparent;
+    left: -12px;
+    border-width: 9px;
+}
+
+aside.green-ribbon:after {
+    border-color: #00635a transparent #00635a #00635a;
+    right: -12px;
+    border-width: 9px;
+}
+
+aside.blue-ribbon {
+    background-color: #039BE5;
+}
+
+aside.blue-ribbon:before, aside.blue-ribbon:after {
+    top: 5px;
+    z-index: -10;
+}
+
+aside.blue-ribbon:before {
+    border-color: #0279b3 #0279b3 #0279b3 transparent;
+    left: -12px;
+    border-width: 9px;
+}
+
+aside.blue-ribbon:after {
+    border-color: #0279b3 transparent #0279b3 #0279b3;
+    right: -12px;
+    border-width: 9px;
+}
+
+aside.yellow-ribbon {
+    background-color: #F9A825;
+}
+
+aside.yellow-ribbon:before, aside.yellow-ribbon:after {
+    top: 5px;
+    z-index: -10;
+}
+
+aside.yellow-ribbon:before {
+    border-color: #e59006 #e59006 #e59006 transparent;
+    left: -12px;
+    border-width: 9px;
+}
+
+aside.yellow-ribbon:after {
+    border-color: #e59006 transparent #e59006 #e59006;
+    right: -12px;
+    border-width: 9px;
+}
+
+
+aside.arrow {
+    background-color: #8D96ED;
+}
+
+aside.arrow:after, aside.arrow:before {
+    border-width: 17px 0 17px 17px;
+}
+
+aside.arrow:before {
+    border-color: #8D96ED transparent;
+    left: -17px;
+}
+
+aside.arrow:after {
+    border-color: transparent #8D96ED;
+    right: -17px;
+}
+
+aside.rounded {
+    background-color: #FC9E86;
+    border-radius: 25px / 17px;
+    left: -20px;
+    width: 200px;
+}
+
+aside.sheer {
+    background-color: #85C9ED;
+    left: -5px;
+    width: 170px;
+}
+
+aside.sheer:after, aside.sheer:before {
+    border-width: 33px 10px 0 0;
+}
+
+aside.sheer:before {
+    left: -10px;
+    border-color: transparent #85C9ED;
+}
+
+aside.sheer:after {
+    right: -10px;
+    border-color: #85C9ED transparent;
+}
+
+aside:before, aside:after {
+    content: '';
+    position: absolute;
+    height: 0;
+    width: 0;
+    border-style: solid;
+    border-width: 0;
+}

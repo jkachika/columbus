@@ -1,0 +1,273 @@
+{% load edf_filters %}
+<div id="workflow-listwrapper" class="col-xs-2 nano">
+    <div class="nano-content">
+        <div id="wfid-0"
+             data-workflowid="0"
+             data-workflowname="New Workflow"
+             data-description=""
+             data-componentid=""
+             data-sharing=""
+             data-viewers=""
+             class="listheader"
+             onclick="showWorkflow(this);">
+            Click here to create a New Workflow
+        </div>
+        {% for workflow in workflows %}
+            <div id="wfid-{{ workflow.id }}"
+                    {% if workflow.ignore == True %} style="display: none" {% endif %}
+                 data-workflowid="{{ workflow.id }}"
+                 data-workflowname="{{ workflow.name }}"
+                 data-description="{{ workflow.description }}"
+                 data-sharing="{{ workflow.sharing }}"
+                 data-viewers="{{ workflow | list_viewers }}"
+                 data-componentid="{{ workflow.component.id }}"
+                    {% if workflow.user != current_user %}
+                 data-readonly="true"
+                    {% endif %}
+                    {% if workflow.chain != None %}
+                 data-chain="{{ workflow.chain }}"
+                    {% endif %}
+                 class="listitem"
+                 onclick="showWorkflow(this);">
+                <span style="font-weight: 400">{{ workflow.name }}</span><br>
+                <span style="font-size: 11px; font-weight: 100">{{ workflow.time | date:"D, d M Y - h:i:s A" }}</span><br>
+                {% if workflow.user != current_user %}
+                <span style="font-size: 11px; font-weight: 100">Owner - {{ workflow.user.get_full_name }}</span>
+                {% endif %}
+            </div>
+        {% endfor %}
+        {% if wstatus != None %}
+            <div id="workflow-status" data-heading="{{ wstatus.name }}" data-message="{{ wstatus.message }}"
+                 style="display: none"></div>
+        {% endif %}
+        {% if wopenid != None %}
+            <div id="open-workflow" data-workflowid="{{ wopenid }}" style="display: none"></div>
+        {% else %}
+            <div id="open-workflow" data-workflowid="0" style="display: none"></div>
+        {% endif %}
+    </div>
+</div>
+<div id="workflow-details" class="col-xs-10" style="border-left: 1px solid #ddd; height: inherit; margin-right: -15px">
+    <div class="row" style="height: inherit">
+        <div class="col-xs-4" style="height: inherit; padding-top: 7px;">
+            <h3 id="workflow-title" class="nonbreaking-title">New Workflow</h3>
+            <form id='workflow-form' role="form" method="post" action="/workspace">
+                {% csrf_token %}
+                <div id='workflow-formwrapper' class="nano">
+                    <div class="nano-content">
+                        <div style="padding-right: 15px;">
+                            {% if werror != None %}
+                                <div id="workflow-alert-holder" style="align-content: center;"
+                                     class="alert alert-danger fade in">
+                                    <a href="#" class="close" data-dismiss="alert"
+                                       aria-label="close">&times;</a>
+                                    {{ werror | linebreaks }}
+                                </div>
+                            {% endif %}
+                            <input id="form-type" name="form-type" type="hidden" value="workflow">
+                            <input id="workflow-id" name="wfid" type="hidden" value="0">
+                            <div class="form-group">
+                                <label class="form-control-title" for="wfname">Name</label>
+                                <input id="wfname" type="text" class="form-control" name="wfname" required
+                                       placeholder="Maximum 200 characters">
+                                <div class="checkbox" style="margin-top: 5px;">
+                                    <label style="font-weight: 300; width: 100px;">
+                                        <input type="checkbox" value="true" name="wshare" id="wshare"/>Share
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group hidden" id="wviewers-div">
+                                <label class="form-control-title" for="wviewers">Share with</label>
+                                <select id="wviewers" name="wviewers" class="selectpicker show-menu-arrow show-tick"
+                                        data-size="5" data-width="100%" title="Choose a user" multiple>
+                                    {% for user in allusers %}
+                                        <option data-email="{{ user.email }}" value="{{ user.id }}"
+                                                {% if user == current_user %}class="hidden"{% endif %}>
+                                            {{ user.first_name }} {{ user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div id="wviewers-well" class="hidden"
+                                     style="border: 1px solid #cccccc; border-radius: 4px;
+                                            padding: 10px; margin-top: 10px;">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-control-title" for="wfdesc">Description</label>
+                                <textarea name="wfdesc"
+                                          placeholder="Describe this workflow for your reference"
+                                          class="form-control"
+                                          rows="5" id="wfdesc"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-control-title" for="wcomponents">Flow</label><br>
+                                <select id="wcomponents" name="wcomponents"
+                                        class="selectpicker show-menu-arrow show-tick" title="Choose a Component"
+                                        data-size="5" data-width="100%">
+                                    {% for component in components %}
+                                        {% if component.user != None and component.ignore == False %}
+                                            <option value="{{ component.id }}">{{ component.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-control-title" for="wfoutput">Flow Output</label>
+                                <textarea name="wfoutput"
+                                          placeholder="Choose a component above to see the flow output"
+                                          class="form-control"
+                                          rows="5" id="wfoutput" disabled></textarea>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 5px; display: none">
+                                <div class="checkbox" style="margin-top: 5px;">
+                                    <label style="font-weight: 300">
+                                        <input type="checkbox" value="true" name="wauto" id="wauto"/>Auto Run
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="workflow-auto-run-div" style="display: none">
+                                <div class="form-group">
+                                    <label class="form-control-title" for="wtables">Data source</label><br>
+                                    <select id="wtables" name="wtables" data-live-search="true"
+                                            class="selectpicker show-menu-arrow show-tick" title="Choose a table"
+                                            data-size="5" data-width="100%">
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-control-title">Run type</label>
+                                    <div style="margin-top:0px; width: 100%" class="radio">
+                                        <label style="width: 20%;">
+                                            <input type="radio" name="w-autorun-type"
+                                                   onclick="chooseAutorunType('for');" value="for"
+                                                   required checked>
+                                            for
+                                        </label>
+                                        <label style="width: 40%;">
+                                            <input type="radio" name="w-autorun-type"
+                                                   onclick="chooseAutorunType('for-each');" value="for-each">
+                                            for each
+                                        </label>
+                                        <div style="margin-top: 10px; width: inherit" class="input-group">
+                                            <select id='w-feature-label' name='w-feature-label'
+                                                    class="selectpicker form-control show-menu-arrow show-tick"
+                                                    data-size="5" title="feature" data-width="40%"
+                                                    data-live-search="true">
+                                            </select>
+                                            <select id='w-feature-op' name='w-feature-op'
+                                                    class="selectpicker form-control show-menu-arrow"
+                                                    data-size="6" data-width="20%">
+                                                <option value="<=">&le;</option>
+                                                <option value="<">&lt;</option>
+                                                <option value=">=">&ge;</option>
+                                                <option value=">">&gt;</option>
+                                                <option value="!=">&ne;</option>
+                                                <option value="=" selected>=</option>
+                                            </select>
+                                            <input type="hidden" name="w-feature-type" id="w-feature-type">
+                                            <input type="text" class="form-control" id="w-feature-value"
+                                                   data-provide="typeahead"
+                                                   autocomplete="off" name="w-feature-value"
+                                                   style="width: 40%; margin-left: -2px; border-bottom-right-radius: 4px;
+                                                            border-top-right-radius: 4px;"
+                                                   placeholder="value"/>
+                                        </div>
+                                    </div>
+                                    <div class="input-group" style="width: 100%">
+                                        <input id="where-clause" class="form-control" type="text" disabled value="Where"
+                                               style="width: 25%; cursor: auto; background-color: #eceeef;
+                                               border: 1px solid #ccc;"/>
+                                        <select id='w-auto-constraint' name='w-auto-constraint'
+                                                class="selectpicker form-control show-menu-arrow show-tick"
+                                                data-live-search="true"
+                                                data-size="8" data-width="75%" title="Choose a constraint">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-control-title" for="w-schedule">Schedule</label><br>
+                                    <select id="w-schedule" name="w-schedule"
+                                            class="selectpicker show-menu-arrow show-tick" title="Choose a schedule"
+                                            data-size="5" data-width="100%">
+                                        {% for schedule in schedules %}
+                                            <option value="{{ schedule.id }}">{{ schedule.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div id='workflow-read-group' class="btn-group btn-group-justified" role="group"
+                     style="padding-right: 15px; display: none;">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn theme-bg-border disabled" disabled>
+                            Edit
+                        </button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-warning disabled" disabled>
+                            Save
+                        </button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-danger disabled" disabled>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+                <div id='workflow-edit-group' class="btn-group btn-group-justified" role="group"
+                     style="padding-right: 15px; display: none;">
+                    <div class="btn-group" role="group">
+                        <button id="edit-workflow" type="button" class="btn theme-bg-border"
+                                onclick="editWorkflow();">
+                            Edit
+                        </button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button name="action" id="save-workflow" type="submit" class="btn btn-warning disabled"
+                                value="save" disabled>
+                            Save
+                        </button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button name="action" id="delete-workflow" type="button" class="btn btn-danger"
+                                value="delete" data-toggle="modal" data-target="#confirm-delete"
+                                data-form-title="workflow">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+                <button id='hidden-delete-workflow' name="action" type="submit" class="hidden" value="delete"></button>
+                <div id='workflow-create-group' class="btn-group btn-group-justified" role="group"
+                     style="padding-right: 15px;">
+                    <div class="btn-group" role="group">
+                        <button name="action" id="create-workflow" type="submit" class="btn theme-bg-border"
+                                value="create">
+                            Create
+                        </button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button id="reset-workflow" type="reset" class="btn btn-danger">Reset</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div id='workflow-flowwrapper' class="col-xs-8"
+             style="height: inherit; padding: 0px 0px 0px 0px; background-color: #e9f0f5;border: 1px solid #EEEEEE;
+             border-radius: 4px;">
+            <div id="workflow-timeline" class="nano" style="height: inherit">
+                <div class="nano-content">
+                    <div id='flow-placeholder'
+                         style="color: #8c8c8c; top: calc(50% - 20px); left: calc(50% - 75px); position: absolute">
+                        <p style="text-align: center;width: 150px; height: 40px;">
+                            Choose a component to see the flow here
+                        </p>
+                    </div>
+                    <section id="cd-timeline" class="cd-container hidden">
+
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

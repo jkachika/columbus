@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Page</title>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" media="screen"/>
+    <script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+</head>
+<body>
+<div class="row" style="margin: 15px 0px 10px 0px;">
+    <div class="col-xs-4" style="height: inherit; padding: 0px;">
+        <h3 id="polygon-title" class="nonbreaking-title" style="margin-bottom: 13px;
+    {% comment %}color: #009688{% endcomment %}">Polygons</h3>
+        <div id="polygon-map"
+             style="height: 220px; width: calc(100% - 12px); margin-bottom: 10px;"></div>
+    </div>
+</div>
+<script>
+    function initMap() {
+        //Enabling new cartography and themes
+        google.maps.visualRefresh = true;
+        //Setting starting options of map
+        var mapOptions = {
+            center: new google.maps.LatLng(38, -70),
+            zoom: 4,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            panControl: false,
+            zoomControl: false,
+            scaleControl: false,
+            streetViewControl: false,
+            mapTypeControl: false
+        };
+        //Getting map DOM element
+        var mapElement = $('#polygon-map')[0];
+        map = new google.maps.Map(mapElement, mapOptions);
+    }
+</script>
+<script src="https://maps.google.com/maps/api/js?callback=initMap&key=AIzaSyBmgPNSfhXOslSk0fRyf7t0NG7lZ5s7d8s"
+            async defer></script>
+</body>
+</html>
