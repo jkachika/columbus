@@ -24,8 +24,14 @@ def log_n_raise(e, msg=None):
 
 
 def log_n_suppress(e):
-    logger.error(tb.format_exc())
+    trace = tb.format_exc()
+    logger.error(trace)
     logger.error(e.message)
+    if "exec (compile(__code__, __name__ + '.py', 'exec'), scope)" in str(trace):
+        sub_trace = str(trace).split("exec (compile(__code__, __name__ + '.py', 'exec'), scope)")[-1]
+        sub_trace = sub_trace.replace('<module>', 'module').replace('\n', '<br/>')
+        return e.message + '<br/><b>Trace:</b>' + sub_trace.strip()
+    return e.message
 
 
 def debug(message):

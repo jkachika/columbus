@@ -103,11 +103,26 @@ Scripts should make use of the internal variables `__input__` to get the input d
   ee = CredentialManager.get_earth_engine()
   ```
   
+  - obtaining GeoJSON from earth engine FeatureCollection
+  ```python
+  from pyedf.gee import get_geojson
+  ftc = ee.FeatureCollection('ft:<some fusion table id>')
+  ftc_geojson = get_geojson(ftc)
+  ```
+  
   - Using Fusion Table with Google Earth Engine
   ```python
   ftkey = __input__['ftkey']['component-1'] 
   # Loading data from fusion table
   ftc = ee.FeatureCollection('ft:' + str(ftkey))
+  ```
+  
+  - Sending an email
+  ```python
+  from pyedf.email import send_mail
+  send_email(['abc@xyz.com', 'def@pqr.com'], 'Subject of the Message', 
+             'Hi There! This is a plain text message body', 
+             '<b>Hi There!</b><br/><p>This is a HTML message body</p>') 
   ```
   
 ### Limitations

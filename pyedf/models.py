@@ -273,7 +273,7 @@ class FlowStatusModel(models.Model):
 
     history = models.ForeignKey('HistoryModel')
     title = models.CharField(max_length=255)
-    description = models.CharField(max_length=1000)
+    description = models.CharField(max_length=10000)
     result = models.CharField(max_length=255)
     timestamp = models.DateTimeField()
     ref = models.CharField(max_length=100, null=True)
@@ -369,6 +369,20 @@ class ScheduleModel(models.Model):
                     start, self.custom_count, self.custom_repeat)
             return "Starts on or after %s and repeats every %d %s(s) on %s, forever." % (
                 start, self.custom_count, self.custom_repeat, self.custom_week)
+
+
+class SecurityModel(models.Model):
+    class Meta:
+        db_table = 'oauth_credentials'
+    user = models.ForeignKey('auth.User')
+    credentials = models.CharField(max_length=2000)
+
+    def save(self, *args, **kwargs):
+        try:
+            super(SecurityModel, self).save(*args, **kwargs)
+        except Exception as e:
+            log_n_suppress(e)
+            raise Exception("Something went wrong while saving the auth credentials. Details - %s" % e.message)
 
 
 @receiver(post_save, sender=CombinerModel)

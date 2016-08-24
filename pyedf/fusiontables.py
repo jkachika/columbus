@@ -169,3 +169,21 @@ def delete_table(table_id):
             table.delete(tableId=key).execute()
     except BaseException as e:
         log_n_raise(e)
+
+
+def read_table(table_id):
+    try:
+        ft_service = CredentialManager.get_fusion_tables_service()
+        query = ft_service.query()
+        table = query.sql(sql='SELECT * FROM ' + str(table_id), hdrs=False).execute()
+        result_rows = []
+        columns = [str(column) for column in table['columns']]
+        rows = table['rows']
+        for row in rows:
+            result_row = {}
+            for index, cell in enumerate(row):
+                result_row[columns[index]] = str(cell) if isinstance(cell, unicode) else cell
+            result_rows.append(result_row)
+        return result_rows
+    except BaseException as e:
+        log_n_raise(e)

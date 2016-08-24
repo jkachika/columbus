@@ -12,6 +12,8 @@ var lastOverlay;
 var drewPolygon;
 var layers = [];
 var isserviceup; //will be true if service is up and running
+var CLIENT_ID = '492266571222-lk6vohmrf2fkkvkmjfi5583qj30ijjkc.apps.googleusercontent.com';
+var SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
@@ -28,6 +30,83 @@ function sameOrigin(url) {
         (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
             // or any other URL that isn't scheme relative or absolute i.e relative.
         !(/^(\/\/|http:|https:).*/.test(url));
+}
+
+function checkDriveAuth() {
+    gapi.auth.authorize({
+        'client_id': CLIENT_ID,
+        'scope': SCOPES.join(' '),
+        'immediate': true
+    }, handleDriveAuthResult);
+}
+
+function handleDriveAuthResult(authResult) {
+    if (authResult && !authResult.error) {
+        $('#g-sign-in').addClass('hidden');
+        $('#floatingDiv').removeClass('hidden');
+        loadDriveApi();
+    } else {
+        // Show auth UI, allowing the user to initiate authorization by
+        // clicking authorize button.
+        $('#floatingDiv').addClass('hidden');
+        $('#g-sign-in').removeClass('hidden');
+        $('.g-sign-in').removeClass('hidden');
+        $('.g-sign-in .button').click(function () {
+            // If the login succeeds, hide the login button and run the analysis.
+            //$('.g-sign-in').addClass('hidden');
+            gapi.auth.authorize({
+                'client_id': CLIENT_ID,
+                'scope': SCOPES.join(' '),
+                'immediate': false
+            }, handleDriveAuthResult);
+        });
+    }
+}
+
+function loadDriveApi() {
+    gapi.client.load('drive', 'v3', listDriveFiles);
+}
+
+function listDriveFiles(runType) {
+    if (!runType)
+        runType = $('input[name=gd-run-type]:checked').val();
+    var query = "mimeType = 'application/vnd.google-apps.folder'";
+    if (runType == 'for')
+        query = "mimeType = 'application/vnd.google-apps.fusiontable' or fileExtension='csv'";
+    var request = gapi.client.drive.files.list({
+        'pageSize': 1000,
+        'fields': "nextPageToken, files(id, name, mimeType, fileExtension)",
+        'q': query,
+        'orderBy': 'viewedByMeTime desc'
+    });
+    var $gdIdentifier = $('#gd-identifier');
+    $gdIdentifier.html('');
+    showOverlay();
+    var callback = function (resp) {
+        var html = [];
+        var files = resp.files;
+        if (files && files.length > 0) {
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                html.push('<option value="' + file.id + '">' + file.name + '</option>');
+            }
+            $gdIdentifier.append(html.join(''));
+        }
+        if (resp.nextPageToken) {
+            request = gapi.client.drive.files.list({
+                'pageSize': 1000,
+                'pageToken': resp.nextPageToken,
+                'fields': "nextPageToken, files(id, name, mimeType, fileExtension)",
+                'q': query,
+                'orderBy': 'viewedByMeTime desc'
+            });
+            request.execute(callback);
+        } else {
+            hideOverlay();
+            initializeScrollOnHover($gdIdentifier);
+        }
+    };
+    request.execute(callback);
 }
 
 $(document).ready(function () {
@@ -252,6 +331,10 @@ $(document).ready(function () {
             });
         }
     });
+
+    $('#datasource').on('change', function () {
+        chooseDatasource($(this).val());
+    });
 });
 
 function validateForm() {
@@ -261,16 +344,22 @@ function validateForm() {
         var runType = $('input:radio[name=run-type]:checked').val()
         var $bqfeature = $('#bq-feature-label');
         var $bqvalue = $('#bq-feature-value');
-        if($bqtable.val() == undefined || $bqtable.val() == ''){
+        if ($bqtable.val() == undefined || $bqtable.val() == '') {
             $('button[data-id=bq-table]').focus();
             return false;
         }
-        if($bqfeature.val() == undefined || $bqfeature.val() == ''){
+        if ($bqfeature.val() == undefined || $bqfeature.val() == '') {
             $('button[data-id=bq-feature-label]').focus();
             return false;
         }
-        if(runType == 'for' && $bqvalue.val().trim() == ''){
+        if (runType == 'for' && $bqvalue.val().trim() == '') {
             $bqvalue.val('').focus();
+            return false;
+        }
+    } else if (choice == 'drive') {
+        var $gdIdentifier = $('#gd-identifier');
+        if ($gdIdentifier.val() == undefined || $gdIdentifier.val() == '') {
+            $('button[data-id=gd-identifier]').focus();
             return false;
         }
     }
@@ -285,7 +374,45 @@ function validateForm() {
 function chooseDatasource(choice) {
     $('#start-flow').removeAttr('disabled');
     if (choice == 'bigquery') {
-
+        $('#bq-details-div').removeClass('hidden');
+        $('#combiner-title').addClass('hidden');
+        $('#gd-details-div').addClass('hidden');
+    } else if (choice == 'drive') {
+        $('#bq-details-div').addClass('hidden');
+        $('#combiner-title').addClass('hidden');
+        $('#gd-details-div').removeClass('hidden');
+        //checkDriveAuth();
+        var runType = $('input[name="gd-run-type"]:checked').val();
+        showOverlay();
+        $.ajax({
+            type: "GET",
+            url: "/data/?source=drive&runtype=" + runType,
+            dataType: 'json',
+            success: function (response) {
+                hideOverlay();
+                if (response.what == 'authorize') {
+                    console.log(response.result);
+                    window.open(response.result, '_self');
+                } else if (response.what == 'files') {
+                    var files = response.result;
+                    var html = [];
+                    $(files).each(function (index, file) {
+                        html.push('<option value="' + file.id + '">' + file.name + '</option>');
+                    });
+                    $('#gd-identifier').html(html.join('')).selectpicker('refresh');
+                } else if (response.what == 'error') {
+                    showErrorGrowl('Something went wrong!', response.result + '. If the issue persists, please seek support.');
+                }
+            },
+            error: function () {
+                hideOverlay();
+                showErrorGrowl('Something went wrong!', 'Unable to get the files for google drive. If the issue persists, please seek support')
+            }
+        });
+    } else {
+        $('#bq-details-div').addClass('hidden');
+        $('#gd-details-div').addClass('hidden');
+        $('#combiner-title').removeClass('hidden');
     }
 }
 
@@ -297,6 +424,34 @@ function chooseAutorunType(runType) {
         $('#bq-feature-op').attr('disabled', 'true').selectpicker('refresh');
         $('#bq-feature-value').attr('disabled', 'true')
     }
+}
+
+function chooseDriveRunType(runType) {
+    //listDriveFiles(runType);
+    $.ajax({
+        type: "GET",
+        url: "/data/?source=drive&runtype=" + runType,
+        dataType: 'json',
+        success: function (response) {
+            hideOverlay();
+            if (response.what == 'authorize') {
+                window.open(response.result);
+            } else if (response.what == 'files') {
+                var files = response.result;
+                var html = [];
+                $(files).each(function (index, file) {
+                    html.push('<option value="' + file.id + '">' + file.name + '</option>');
+                });
+                $('#gd-identifier').html(html.join('')).selectpicker('refresh');
+            } else if (response.what == 'error') {
+                showErrorGrowl('Something went wrong!', response.result + '. If the issue persists, please seek support.');
+            }
+        },
+        error: function () {
+            hideOverlay();
+            showErrorGrowl('Something went wrong!', 'Unable to get the files for google drive. If the issue persists, please seek support');
+        }
+    });
 }
 
 function initializeScrollOnHover($select) {

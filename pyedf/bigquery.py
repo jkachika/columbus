@@ -84,7 +84,13 @@ def _execute_job(project_id, dataset_id, query, sync=False):
             for row in job["rows"]:
                 result_row = []
                 for index, field in enumerate(row["f"]):
-                    result_row.append({"v": python_types.get(fields[index]["type"], str)(field["v"])})
+                    try:
+                        result_row.append({"v": python_types.get(fields[index]["type"], str)(field["v"])})
+                    except TypeError:
+                        if fields[index]["type"] == 'INTEGER' or fields[index]["type"] == 'FLOAT':
+                            result_row.append({"v": float('NaN')})
+                        else:
+                            result_row.append({"v": 'NaN'})
                 result_rows.append(result_row)
             page_token = job.get("pageToken", None)
             more_results = True if page_token else False

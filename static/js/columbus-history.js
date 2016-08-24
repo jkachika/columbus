@@ -370,7 +370,7 @@ function peekstatus($eol, prevts, count, fsid, flowid) {
                         'data-html="true"' +
                         'data-flowid="' + message.flowid + '"' +
                         'data-fsid="' + message.id + '"' +
-                        'data-desc="' + message.description + '"' +
+                        'data-desc="' + encodeURI(String(message.description)) + '"' +
                         'data-componentid="' + message.ref + '"' +
                         'data-type="' + message.type + '"' +
                         'data-ftkey="' + message.ftkey + '"' +
@@ -397,7 +397,7 @@ function peekstatus($eol, prevts, count, fsid, flowid) {
                     container: "body",
                     html: "true",
                     content: function () {
-                        $('#popover-desc').html($(this).data('desc'));
+                        $('#popover-desc').html(decodeURI($(this).data('desc')));
                         var type = $(this).data('type');
                         if ($(this).data('componentid').trim() != '' &&
                             (type == 'csv' || type == 'ftc' || type == 'mftc')) {

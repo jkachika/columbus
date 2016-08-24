@@ -35,6 +35,13 @@ BQ_CREDENTIALS = os.path.join(SECURED_DIR, 'earth-outreach-bigquery.json')
 CS_CREDENTIALS = os.path.join(SECURED_DIR, 'columbus-earth-engine.json')
 # service account credentials from Google dev console for Google Fusion Tables and Google Drive
 FT_CREDENTIALS = os.path.join(SECURED_DIR, 'columbus-earth-engine.json')
+# client secret to gain access to end users google drive
+GD_CREDENTIALS = os.path.join(SECURED_DIR, 'columbus-client-secret.json')
+# Redirect URI to get the authorization code
+OAUTH2_CALLBACK = 'http://127.0.0.1:8000/oauth2callback'
+# Cloud Storage Bucket to use for temporary file storing. The service account key specified for CS_CREDENTIALS must have
+# full access to this bucket.
+CS_TEMP_BUCKET = 'staging.columbus-csu.appspot.com'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -57,7 +64,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'pyedf',
-    'django-dia'
+    'django-dia',
+    'django_extensions'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -135,6 +143,11 @@ TEMPLATES = [
 # 'django.template.loaders.app_directories.Loader',
 # )
 
+EMAIL_SENDER = 'Columbus <noreply@columbus.cs.colostate.edu>'
+
+ADMINS = [
+    ('Johnson Kachikaran', 'jcharles@cs.colostate.edu'),
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/

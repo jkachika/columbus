@@ -7,6 +7,7 @@ import re
 import shutil
 import threading
 from operator import itemgetter
+from threading import current_thread
 
 import cachetools
 
@@ -18,7 +19,8 @@ from geojson import FeatureCollection, Feature
 from columbus.settings import USER_DIRPATH, USER_GCSPATH
 from pyedf import bigquery
 from pyedf import fusiontables
-from pyedf.models import ComponentModel, TypeModel
+from pyedf import drive
+from pyedf.models import ComponentModel, TypeModel, SecurityModel
 from pyedf.models import FlowStatusModel
 from pyedf.models import HistoryModel
 from pyedf.models import WorkflowModel
@@ -389,6 +391,24 @@ def __serialize_bigquery_request(source, identifier, history, feature, primitive
                          primitive=primitive, op="=", value=str(distinct_value), constraint=constraint)
 
 
+def __serialize_drive_request(credentials, source, name, identifier, history):
+    description = 'Finding the files in the specified folder(' + str(name) + ').'
+    description += ' This request will create multiple workflows.'
+    FlowStatusModel(history=history, title='Identifying files', description=description, result='Success',
+                    timestamp=timezone.now(), element='Pre-Processing').save()
+    q = "(mimeType = 'application/vnd.google-apps.fusiontable' or fileExtension='csv') and trashed = false and '" + str(
+        identifier) + "' in parents"
+    drive_files = drive.list_files(credentials, query=q, order_by='viewedByMeTime desc')
+    for index, drive_file in enumerate(drive_files):
+        if index == 0:
+            execute_flow(source=source, identifier=drive_file['id'], history=history)
+        else:
+            new_history = HistoryModel(user=history.user, start=timezone.now(), flow=history.flow,
+                                       source=history.source, details="uninitialized", status="Queued")
+            new_history.save()
+            execute_flow(source=source, identifier=drive_file['id'], history=new_history)
+
+
 def __fetch_raw_data(element, source, identifier, history, feature=None, primitive=None, op=None, value=None,
                      constraint=None):
     if source == 'bigquery':
@@ -415,6 +435,21 @@ def __fetch_raw_data(element, source, identifier, history, feature=None, primiti
                 row_dict[fields[index]] = cell["v"]
             csv.append(row_dict)
         return csv
+    elif source == 'drive':
+        security = SecurityModel.objects.filter(user=history.user).first()
+        if security:
+            metadata = drive.get_metadata(security.credentials, identifier)
+            current_time = localtime(timezone.now()).strftime("%a, %d %b %Y - %I:%M:%S %p")
+            history.details = str(metadata['name']) + ' as of ' + current_time
+            history.save()
+            FlowStatusModel(history=history, title='Fetching Data',
+                            description='Reading the file - ' + str(metadata['name']) + ' having identifier ' + str(
+                                metadata['id']), result="Pending", timestamp=timezone.now(),
+                            element=element.name).save()
+            return drive.get_file_contents(security.credentials, identifier)
+        else:
+            raise Exception('No credentials found to access your Google Drive.')
+    return []
 
 
 def __verify_output(element_type, __output__, element, history):
@@ -508,11 +543,11 @@ def __execute_element(element_type, _input, element, history):
                         element=element.name, pickle=pickle_name, gcs_pickle=gcs_pickle_name, type=type_model,
                         ftkey=element.ftkey).save()
     except BaseException as e:
-        log_n_suppress(e)
+        exc_trace = log_n_suppress(e)
         FlowStatusModel(history=history, title='Execution Failed',
                         description=element.name + ' failed to execute. Reason - ' + e.message,
                         result='Failed', timestamp=timezone.now(), element=element.name).save()
-        raise Exception(str(element_type) + ' <b>' + element.name + '</b> Failed - ' + e.message)
+        raise Exception(str(element_type) + ' <b>' + element.name + '</b> Failed - ' + exc_trace)
 
 
 def execute_flow(source, identifier, history, feature=None, primitive=None, op=None, value=None, constraint=None):
@@ -521,6 +556,19 @@ def execute_flow(source, identifier, history, feature=None, primitive=None, op=N
             __serialize_bigquery_request(source=source, identifier=identifier, history=history, feature=feature,
                                          primitive=primitive, constraint=constraint)
             return
+        elif source == 'drive':
+            try:
+                security = SecurityModel.objects.filter(user=history.user).first()
+                if security:
+                    metadata = drive.get_metadata(security.credentials, identifier)
+                    if metadata['mimeType'] == 'application/vnd.google-apps.folder':
+                        __serialize_drive_request(security.credentials, source, metadata['name'], identifier, history)
+                        return
+                else:
+                    raise Exception('No credentials found to access your Google drive.')
+            except Exception as e:
+                log_n_suppress(e)
+                raise Exception('Failed to retrieve the information from Google drive. Details - ' + e.message)
         history.status = 'Started'
         history.save()
         FlowStatusModel(title='Flow Verification', description='Verifiying the workflow for cycles.',
@@ -617,7 +665,8 @@ def execute_flow(source, identifier, history, feature=None, primitive=None, op=N
 
                 FlowStatusModel(title='Combining Completed',
                                 description=('Output of all the ' + wmodel.name + ' instances are combined. '
-                                             'Gathered output of ' + str(len(__input__)) + ' instance(s).'),
+                                                                                  'Gathered output of ' + str(
+                                    len(__input__)) + ' instance(s).'),
                                 result='Success', element=element.name, history=history,
                                 timestamp=timezone.now()).save()
                 __execute_element(element_type="Combiner", _input=__input__, element=element, history=history)
@@ -690,6 +739,10 @@ def execute_flow(source, identifier, history, feature=None, primitive=None, op=N
         history.duration = int((history.finish - history.start).seconds)
         history.status = "Failed"
         history.save()
+        exc_message = e.message
+        if len(exc_message) > 9900:
+            # max supported length is 10000 characters.
+            exc_message = exc_message[0:9900] + str('... ***trace truncated***')
         FlowStatusModel(history=history, title='Flow Failed',
-                        description=history.flow.name + ' failed to execute. Reason - ' + e.message,
+                        description=history.flow.name + ' failed to execute. Reason: ' + exc_message,
                         result='Failed', timestamp=timezone.now(), element='Post-Processing').save()

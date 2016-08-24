@@ -5,6 +5,8 @@ secured/
 pyedf/migrations/0*.py
 *.dot
 *.dia
+.ipynb_checkpoints
+*.ipynb
 
 #################
 ## Eclipse

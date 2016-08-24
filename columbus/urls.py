@@ -46,6 +46,8 @@ urlpatterns = [
     url(r'^getchain/$', BuildChain.as_view()),
     url(r'^peekflow/$', PeekFlow.as_view()),
     url(r'^peekdata/$', PeekFlowData.as_view()),
+    url(r'^oauth2callback/$', OAuth2Handler.as_view()),
+    url(r'^data/$', DatasourceAsync.as_view()),
     url(r'^service/$', ColumbusService.as_view()),
     url(r'^admin', include(admin.site.urls))
 ]

@@ -16,6 +16,16 @@
     <input id="searchPlace" class="controls" type="text" placeholder="Search a location"
            xmlns="http://www.w3.org/1999/html"/>
     <div id='mapDiv' class="map"></div>
+    <div id="g-sign-in" class="g-sign-in hidden">
+        <p style="font-size: 18px; font-weight: 400; margin-bottom: 10px">Columbus needs permission to access files
+            and folders on your Google Drive.</p><br/>
+        <span class="label">Sign in with:</span>
+
+        <div class="button">
+            <span class="icon"><img src="/static/images/g-icon.png" height="28px" width="28px"></span>
+            <span class="wordmark"><img src="/static/images/g-wordmark.png" height="39px" width="80px"></span>
+        </div>
+    </div>
     <div id='floatingDiv' class="floater col-xs-3 hidden">
         <form role="form" action="/startflow" method="post" onsubmit="return validateForm();">
             {% csrf_token %}
@@ -25,77 +35,106 @@
                 </div>
             {% endif %}
             <label style="font-weight: 500; font-size: 15px; margin: 0">Data Source</label>
-            <div class="radio">
-                <label style="padding-bottom: 10px">
+            <div style="margin: 10px 5px 10px 5px;">
+                {% comment %}<label style="width: 38%">
                     <input type="radio" name="datasource"
                            onclick="chooseDatasource('bigquery');" required value="bigquery" checked>
                     Bigquery
                 </label>
-                <div class="form-group" id="bq-details-div" style="margin: 0px 20px 0px 20px;">
-                    <select id="bq-table" name="bq-table" data-live-search="true"
-                            class="selectpicker show-menu-arrow show-tick" title="Choose a table"
-                            data-size="5" data-width="100%">
-                    </select>
-                    <div style="margin-top:10px; width: 100%" class="radio">
-                        <label style="width: 30%; padding-left: 0px">Run Type</label>
-                        <label style="width: 20%;">
-                            <input type="radio" name="run-type"
-                                   onclick="chooseAutorunType('for');" value="for"
-                                   required checked>
-                            for
-                        </label>
-                        <label>
-                            <input type="radio" name="run-type"
-                                   onclick="chooseAutorunType('for-each');" value="for-each">
-                            for each
-                        </label>
-                    </div>
-                    <div style="margin-top: 10px; margin-bottom: 10px; width: 100%" class="input-group">
-                        <select id='bq-feature-label' name='bq-feature-label'
-                                class="selectpicker form-control show-menu-arrow show-tick"
-                                data-size="5" title="feature" data-width="40%"
-                                data-live-search="true">
-                        </select>
-                        <select id='bq-feature-op' name='bq-feature-op'
-                                class="selectpicker form-control show-menu-arrow"
-                                data-size="6" data-width="20%">
-                            <option value="<=">&le;</option>
-                            <option value="<">&lt;</option>
-                            <option value=">=">&ge;</option>
-                            <option value=">">&gt;</option>
-                            <option value="!=">&ne;</option>
-                            <option value="=" selected>=</option>
-                        </select>
-                        <input type="hidden" name="bq-feature-type" id="bq-feature-type">
-                        <input type="text" class="form-control" id="bq-feature-value" data-provide="typeahead"
-                               autocomplete="off" name="bq-feature-value"
-                               style="width: 40%; margin-left: -2px; border-bottom-right-radius: 4px;
-                               border-top-right-radius: 4px;"
-                               placeholder="value"/>
-                    </div>
-                    <div class="input-group" style="width: 100%">
-                        <input id="where-clause" class="form-control" type="text" disabled value="Where"
-                               style="width: 25%; cursor: auto; background-color: #eceeef;
-                                       border: 1px solid #ccc;"/>
-                        <select id='bq-constraint' name='bq-constraint'
-                                class="selectpicker form-control show-menu-arrow show-tick"
-                                data-live-search="true"
-                                data-size="8" data-width="75%" title="Choose a constraint">
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="radio" style="padding-top: 10px;">
-                <label style="padding-bottom: 10px">
+                <label style="width: 30%">
+                    <input type="radio" name="datasource"
+                           onclick="chooseDatasource('drive');" required value="drive">
+                    Drive
+                </label>
+                <label style="width: 30%">
                     <input type="radio" name="datasource"
                            onclick="chooseDatasource('combiner');" required value="combiner">
                     Combiner
-                </label>
-                <input id="combiner-title" name="combiner-title" type="text" class="form-control"
-                           placeholder="Type a title, optional" style="margin-left: 20px; width: calc(100% - 40px);"/>
+                </label>{% endcomment %}
+                <select id="datasource" name="datasource" class="selectpicker show-menu-arrow show-tick"
+                        data-size="5" data-width="100%">
+                    <option value="bigquery" selected>Google Bigquery</option>
+                    <option value="drive">Google Drive</option>
+                    <option value="combiner">Workflow Combiner</option>
+                </select>
             </div>
-            <label style="font-weight: 500; font-size: 15px; margin: 10px 0 5px 0px">Workflow</label>
-            <div style="margin: 0px 20px 0px 20px">
+            <div class="form-group" id="bq-details-div" style="margin: 0px 5px 0px 5px;">
+                <select id="bq-table" name="bq-table" data-live-search="true"
+                        class="selectpicker show-menu-arrow show-tick" title="Choose a table"
+                        data-size="5" data-width="100%">
+                </select>
+                <div style="margin-top:10px; width: 100%" class="radio">
+                    <label style="width: 30%; padding-left: 0px">Run Type</label>
+                    <label style="width: 20%;">
+                        <input type="radio" name="run-type"
+                               onclick="chooseAutorunType('for');" value="for"
+                               required checked>
+                        for
+                    </label>
+                    <label>
+                        <input type="radio" name="run-type"
+                               onclick="chooseAutorunType('for-each');" value="for-each">
+                        for each
+                    </label>
+                </div>
+                <div style="margin-top: 10px; margin-bottom: 10px; width: 100%" class="input-group">
+                    <select id='bq-feature-label' name='bq-feature-label'
+                            class="selectpicker form-control show-menu-arrow show-tick"
+                            data-size="5" title="feature" data-width="40%"
+                            data-live-search="true">
+                    </select>
+                    <select id='bq-feature-op' name='bq-feature-op'
+                            class="selectpicker form-control show-menu-arrow"
+                            data-size="6" data-width="20%">
+                        <option value="<=">&le;</option>
+                        <option value="<">&lt;</option>
+                        <option value=">=">&ge;</option>
+                        <option value=">">&gt;</option>
+                        <option value="!=">&ne;</option>
+                        <option value="=" selected>=</option>
+                    </select>
+                    <input type="hidden" name="bq-feature-type" id="bq-feature-type">
+                    <input type="text" class="form-control" id="bq-feature-value" data-provide="typeahead"
+                           autocomplete="off" name="bq-feature-value"
+                           style="width: 40%; margin-left: -2px; border-bottom-right-radius: 4px;
+                               border-top-right-radius: 4px;"
+                           placeholder="value"/>
+                </div>
+                <div class="input-group" style="width: 100%">
+                    <input id="where-clause" class="form-control" type="text" disabled value="Where"
+                           style="width: 25%; cursor: auto; background-color: #eceeef;
+                                       border: 1px solid #ccc;"/>
+                    <select id='bq-constraint' name='bq-constraint'
+                            class="selectpicker form-control show-menu-arrow show-tick"
+                            data-live-search="true"
+                            data-size="8" data-width="75%" title="Choose a constraint">
+                    </select>
+                </div>
+            </div>
+            <div class="form-group hidden" id="gd-details-div" style="margin: 0px 5px 0px 5px;">
+                <div style="margin-top: 0px; width: 100%" class="radio">
+                    <label style="width: 30%; padding-left: 0px">Run Type</label>
+                    <label style="width: 20%;">
+                        <input type="radio" name="gd-run-type"
+                               onclick="chooseDriveRunType('for');" value="for"
+                               required checked>
+                        for
+                    </label>
+                    <label>
+                        <input type="radio" name="gd-run-type"
+                               onclick="chooseDriveRunType('for-each');" value="for-each">
+                        for each
+                    </label>
+                </div>
+                <select id="gd-identifier" name="gd-identifier" data-live-search="true"
+                        class="selectpicker show-menu-arrow show-tick" title="Choose a file"
+                        data-size="5" data-width="100%">
+                </select>
+            </div>
+            <input id="combiner-title" name="combiner-title" type="text" class="form-control hidden"
+                   placeholder="Type a title, optional" style="margin-left: 5px; width: calc(100% - 10px);"/>
+            <label style="font-weight: 500; font-size: 15px; margin: 20px 0 5px 0px">Workflow</label>
+            <div style="margin: 5px 5px 0px 5px">
                 <select id='workflow' name='workflow' class="selectpicker form-control show-menu-arrow show-tick"
                         data-size="5" title="Choose a flow"
                         {% if workflows|length > 5 %} data-live-search="true" {% endif %}>
@@ -132,4 +171,5 @@
     <script src="https://maps.google.com/maps/api/js?libraries=places,drawing,visualization&callback=initMap&key=AIzaSyBmgPNSfhXOslSk0fRyf7t0NG7lZ5s7d8s"
             async defer>
     </script>
+    <script src="https://apis.google.com/js/client.js"></script>
 {% endblock %}

@@ -18,12 +18,16 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.generic import View
+from googleapiclient import errors
+from oauth2client.client import HttpAccessTokenRefreshError
 
 from columbus.settings import *
 from pyedf import bigquery
 from pyedf import coreengine
 from pyedf import fusiontables
+from pyedf.drive import list_files
 from pyedf.models import *
+from pyedf.security import CredentialManager
 from pyedf.utils import *
 
 
@@ -208,6 +212,54 @@ class PeekFlowData(_LoggedInMixin, View):
         return self.get(request)
 
 
+class OAuth2Handler(_LoggedInMixin, View):
+    def get(self, request):
+        state = request.GET.get('state', None)
+        code = request.GET.get('code', None)
+        try:
+            credentials = CredentialManager.get_drive_credentials(code)
+            security = SecurityModel.objects.filter(user=self.request.user).first()
+            if security:
+                security.credentials = credentials.to_json()
+            else:
+                security = SecurityModel(user=self.request.user, credentials=credentials.to_json())
+            security.save()
+            return HttpResponseRedirect(state)
+        except Exception as e:
+            log_n_suppress(e)
+            request.session['sferror'] = e.message
+            return HttpResponseRedirect('/home')
+
+
+class DatasourceAsync(_LoggedInMixin, View):
+    def get(self, request):
+        source = request.GET.get('source', None)
+        if source == 'drive':
+            security = SecurityModel.objects.filter(user=self.request.user).first()
+            if security:
+                run_type = request.GET.get('runtype', 'for')
+                try:
+                    result = list_files(security.credentials,
+                                        query="mimeType = 'application/vnd.google-apps.fusiontable' or fileExtension='csv' and trashed = false"
+                                        if run_type == 'for' else "mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+                                        order_by="viewedByMeTime desc")
+                    return JsonResponse({'what': 'files', 'result': result})
+                except errors.HttpError, err:
+                    if err.resp.status == 401:
+                        return JsonResponse(
+                            {'what': 'authorize', 'result': CredentialManager.get_drive_authorization_url('/home')})
+                except HttpAccessTokenRefreshError as err:
+                    return JsonResponse(
+                        {'what': 'authorize', 'result': CredentialManager.get_drive_authorization_url('/home')})
+                except Exception as e:
+                    log_n_suppress(e)
+                    return JsonResponse({'what': 'error', 'result': e.message})
+            else:
+                return JsonResponse(
+                    {'what': 'authorize', 'result': CredentialManager.get_drive_authorization_url('/home')})
+        return JsonResponse({'what': 'error', 'result': 'Unknown source specified - ' + str(source)})
+
+
 class Download(_LoggedInMixin, View):
     def get(self, request):
         hid = int(request.GET.get('flowid', None))
@@ -296,6 +348,7 @@ class StartFlow(_LoggedInMixin, View):
                 user_thread = threading.Thread(target=coreengine.execute_flow,
                                                args=(choice, bq_table, history, feature, feature_type,
                                                      op, value, constraint))
+                user_thread.setName(self.request.user.username + '/tmp/hid' + str(history.id))
                 user_thread.setDaemon(True)
                 user_thread.start()
             elif choice == 'combiner':
@@ -305,6 +358,16 @@ class StartFlow(_LoggedInMixin, View):
                                        status="Queued")
                 history.save()
                 user_thread = threading.Thread(target=coreengine.execute_flow, args=(choice, None, history))
+                user_thread.setName(self.request.user.username + '/tmp/hid' + str(history.id))
+                user_thread.setDaemon(True)
+                user_thread.start()
+            elif choice == 'drive':
+                drive_id = data.get('gd-identifier', None)
+                history = HistoryModel(user=self.request.user, start=timezone.now(), flow=workflow, source=choice,
+                                       details="uninitialized", status="Queued")
+                history.save()
+                user_thread = threading.Thread(target=coreengine.execute_flow, args=(choice, drive_id, history))
+                user_thread.setName(self.request.user.username + '/tmp/hid' + str(history.id))
                 user_thread.setDaemon(True)
                 user_thread.start()
             else:

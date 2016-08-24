@@ -26,6 +26,13 @@ BQ_CREDENTIALS = os.path.join(SECURED_DIR, 'earth-outreach-bigquery.json')
 CS_CREDENTIALS = os.path.join(SECURED_DIR, 'columbus-earth-engine.json')
 # service account credentials from Google dev console for Google Fusion Tables and Google Drive
 FT_CREDENTIALS = os.path.join(SECURED_DIR, 'columbus-earth-engine.json')
+# client secret to gain access to end users google drive
+GD_CREDENTIALS = os.path.join(SECURED_DIR, 'columbus-client-secret.json')
+# Redirect URI to get the authorization code
+OAUTH2_CALLBACK = 'http://columbus.cs.colostate.edu/oauth2callback'
+# Cloud Storage Bucket to use for temporary file storing. The service account key specified for CS_CREDENTIALS must have
+# full access to this bucket.
+CS_TEMP_BUCKET = 'staging.columbus-csu.appspot.com'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -84,6 +91,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 #     os.path.join(BASE_DIR, 'static'),
 # )
 
+# list of host names to which django server should serve. Must be specified when DEBUG = False
+ALLOWED_HOSTS = []
 
 TEMPLATES = [
     {
@@ -123,23 +132,26 @@ LOGIN_URL = '/login'
 LOGOUT_URL = '/login'
 LOGIN_REDIRECT_URL = '/home'
 
-ADMINS = (
+ADMINS = [
     ('Johnson Kachikaran', 'jcharles@cs.colostate.edu'),
-)
+]
 
-# EMAIL_HOST =
-# EMAIL_HOST_USER =
-# EMAIL_HOST_PASSWORD =
-# EMAIL_PORT =
-# EMAIL_USE_TLS =
+# Refer to configuring sendgrid using Postfix on Google Compute Engine here
+# https://cloud.google.com/compute/docs/tutorials/sending-mail/using-sendgrid
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_HOST_USER = 'sendgrid-username'
+EMAIL_HOST_PASSWORD = 'sendgrid-password'
+EMAIL_PORT = 2525
+EMAIL_USE_TLS = True
 
 EMAIL_SUBJECT_PREFIX = '[Columbus] '
+EMAIL_SENDER = 'Sender Name <senders email address including angular brackets>'
 
 MANAGERS = (
     ('Johnson Kachikaran', 'jcharles@cs.colostate.edu'),
 )
 
-SEND_BROKEN_LINK_EMAILS = False
+SEND_BROKEN_LINK_EMAILS = True
 
 
 # Logger settings
