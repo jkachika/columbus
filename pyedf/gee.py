@@ -1,13 +1,14 @@
-import os
-
 import errno
+import os
+import time
+import uuid
+from threading import current_thread
+
 from googleapiclient import http
 
-from pyedf.security import CredentialManager
-from threading import current_thread
 from columbus.settings import CS_TEMP_BUCKET, TEMP_DIRPATH
-import uuid
-import time
+from pyedf.security import CredentialManager
+from pyedf.utils import info, current_time_millis
 
 
 def download_object(bucket, filename, out_file):
@@ -120,6 +121,8 @@ def get_geojson(ftc):
         ee = CredentialManager.get_earth_engine()
         export_task = ee.batch.Export.table.toCloudStorage(ftc, description=unique_id, bucket=CS_TEMP_BUCKET,
                                                            fileNamePrefix=str(filename) + "/", fileFormat='GeoJSON')
+        start_time = current_time_millis()
+        end_time = start_time
         export_task.start()
         Task = ee.batch.Task
         max_wait_time = 7200
@@ -128,10 +131,17 @@ def get_geojson(ftc):
                                                 Task.State.RUNNING]:
             time.sleep(5)  # wait for 5 seconds before polling the status of the task.
             wait_time += 5
+            if export_task.status()['state'] == Task.State.UNSUBMITTED:
+                end_time = current_time_millis()
             if wait_time >= max_wait_time and export_task.status()['state'] == Task.State.UNSUBMITTED:
                 export_task.cancel()
+                info('Task (' + str(export_task.id) + ') remained unsubmitted for ' + str(
+                    (end_time - start_time) / 1000) + ' seconds. Cancelled the task')
                 raise Exception('Task not submitted for more than 2 hours. Cancelled the task.')
-
+        info('Task (' + str(export_task.id) + ') submitted after ' + str(
+            (end_time - start_time) / 1000) + ' seconds.')
+        info('Task (' + str(export_task.id) + ') ran for ' + str(
+            (current_time_millis() - end_time) / 1000) + ' seconds. State: ' + str(export_task.status()['state']))
         if export_task.status()['state'] == Task.State.COMPLETED:
             from geojson import load
             out_file = TEMP_DIRPATH + '/' + str(filename) + '.geojson'

@@ -1,11 +1,16 @@
 import logging
+import math
+import time
 import traceback as tb
 from datetime import datetime as dt
 
 import numpy
-import math
 
 logger = logging.getLogger(__name__)
+
+
+def current_time_millis():
+    return int(round(time.time() * 1000))
 
 
 def caught(try_function, *args):

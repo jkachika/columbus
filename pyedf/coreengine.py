@@ -7,7 +7,6 @@ import re
 import shutil
 import threading
 from operator import itemgetter
-from threading import current_thread
 
 import cachetools
 

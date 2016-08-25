@@ -144,15 +144,14 @@ $ fusermount -u <mounted directory name>
     ```sh
     cachetools==1.1.6
     Django==1.9.4
-    earthengine-api==0.1.80
+    earthengine-api==0.1.92
     geojson==1.3.2
-    google-api-python-client==1.5.0
-    oauth2client==2.0.1
+    google-api-python-client==1.5.2
+    oauth2client==3.0.0
     oauthlib==1.1.1
     requesocks==0.10.8
     requests==2.7.0
     simplejson==3.8.2
-    numpy==1.11.0
     MySQL-python==1.2.5
     pandas==0.16.2
     pyOpenSSL==16.0.0

@@ -30,7 +30,7 @@ FT_CREDENTIALS = os.path.join(SECURED_DIR, 'columbus-earth-engine.json')
 GD_CREDENTIALS = os.path.join(SECURED_DIR, 'columbus-client-secret.json')
 # Redirect URI to get the authorization code
 OAUTH2_CALLBACK = 'http://columbus.cs.colostate.edu/oauth2callback'
-# Cloud Storage Bucket to use for temporary file storing. The service account key specified for CS_CREDENTIALS must have
+# Cloud Storage Bucket to use for temporary file storing. The service account key specified for EE_CREDENTIALS must have
 # full access to this bucket.
 CS_TEMP_BUCKET = 'staging.columbus-csu.appspot.com'
 
@@ -92,7 +92,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # )
 
 # list of host names to which django server should serve. Must be specified when DEBUG = False
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['www.columbus.cs.colostate.edu']
 
 TEMPLATES = [
     {
