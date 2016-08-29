@@ -22,7 +22,8 @@ from pyedf.views import *
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^$', Login.as_view()),
+    url(r'^$', NLHome.as_view()),
+    url(r'/^$', NLHome.as_view()),
     url(r'^login$', Login.as_view()),
     url(r'^logout/$', logout, {'next_page': '/login'}),
     url(r'^verify$', verify),

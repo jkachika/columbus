@@ -1,0 +1,288 @@
+{% extends "nlbase.html" %}
+{% load staticfiles %}
+{% block title %}
+    <title>Overview</title>
+{% endblock %}
+{% block navitems %}
+    <li class="active"><a href="/?page=overview">Getting Started</a></li>
+    <li><a href="/?page=usage">Usage</a></li>
+    <li><a href="/?page=publications">Publications</a></li>
+    <li><a href="/?page=releases">Releases</a></li>
+    <li><a href="/?page=people">People</a></li>
+{% endblock %}
+{% block nlbody %}
+    <div class="docs-header" id="content" tabindex="-1">
+        <div class="container">
+            <h1>Getting Started</h1>
+            <p>An overview of Columbus, supported output types and how to use in scripts, with examples and more.</p>
+        </div>
+    </div>
+    <div id="overview-div" class="container bs-docs-container">
+        <div class="row">
+            <div class="col-md-9" role="main">
+                <div class="bs-docs-section"><h1 class="page-header" id="overview">
+                    <a href="#overview"></a>Overview
+                </h1>
+                    <p class="lead">Columbus is a workflow engine written in python 2.7 at
+                        <a href="http://www.cs.colostate.edu/" class="ext"> Colorado State University</a>.
+                        It supports execution of workflows that can be represented as a
+                        <a class="ext" href="https://en.wikipedia.org/wiki/Directed_acyclic_graph">Directed Acyclic
+                            Graph (DAG)</a>.
+                        The fundamental elements of the engine include components, workflows and combiners. A workflow
+                        is
+                        represented as a directed acyclic graph with nodes being components or combiners and edges
+                        represent the data flow.</p>
+                    <h2 id="overview-components"><a href="#overview-components"></a>Components</h2>
+                    <p>Basic building block of the engine. It can optionally contain a script(python) to process the
+                        incoming data and can specify one or more components and combiners as its parents. Data from the
+                        parents flow as input into the component and the processed data flows out of the component. If
+                        there is no processing involved in a component, the input data itself flows out as output. A
+                        component can be a root in which case it does not have any parents and recieves the input data
+                        from the data source choosen for the workflow at runtime. The input type to a root component is
+                        always a CSV List.</p>
+                    <h2 id="overview-workflows"><a href="#overview-workflows"
+                    ></a>Workflows</h2>
+                    <p>The <strong>only executable element</strong> of the engine. A workflow allows you to choose one
+                        component as its end point from which the DAG is built. The output of the workflow is the output
+                        of the end component.</p>
+                    <h2 id="overview-combiners"><a href="#overview-combiners"
+                    ></a>Combiners</h2>
+                    <p>Combiners take a workflow as its input and combines the output of all the instances of that
+                        workflow. It does not have any parents and can optionally contain a script to process the
+                        combined data. When no processing is involved, the input data flows out as output. The input
+                        type to a combiner is always a Generic List.</p>
+                </div>
+                <div class="bs-docs-section">
+                    <h1 class="page-header" id="output-types"><a href="#output-types"></a>Output Types</h1>
+                    <p class="lead">Columbus supports the following output types - CSV List, Feature, Feature
+                        Collection, Multi Collection and Generic List. All output data is transferred as is to
+                        subsequent elements in the workflow.</p>
+                    <h2 id="ot-csv-list"><a href="#ot-csv-list"></a>CSV List</h2>
+                    <p>Data is represented a list of python dictionaries.</p>
+                    <div class="well">
+                        <code class="python" data-lang="python">
+                            [{'car_speed': 10.54, 'ch4': 3.56, 'locality':'Fort Collins'},<br/>
+                            {'car_speed': 11.10, 'ch4': 6.5, 'locality': 'Denver'} ...]</code>
+                    </div>
+                    <h2 id="ot-feature"><a href="#ot-feature"></a>Feature</h2>
+                    <p>Data is represented as geojson for Feature and must be an instance of
+                        <a class="ext" href="https://pypi.python.org/pypi/geojson/#feature">geojson.Feature</a>.
+                        "properties" must be a simple dictionary with key as string and value as any of the primitive
+                        types however a Feature can include any picklable value as part of its dictionary apart from
+                        "geometry", "properties" and "type".</p>
+                    <div class="well">
+                        <code class="python" data-lang="python">
+                            >>> from geojson import Feature, Point<br/>
+                            >>> my_point = Point((-3.68, 40.41))<br/>
+                            >>> Feature(geometry=my_point) # doctest: +ELLIPSIS<br/>
+                            {"geometry": {"coordinates": [-3.68..., 40.4...], "type": "Point"},
+                            <br/>&nbsp;"properties": {}, "type": "Feature"}
+                        </code>
+                    </div>
+                    <h2 id="ot-ftc"><a href="#ot-ftc"></a>Feature Collection</h2>
+                    <p>Data is represented as geojson for Feature and must be an instance of
+                        <a class="ext" href="https://pypi.python.org/pypi/geojson/#feature">geojson.Feature</a>.
+                        "properties" must be a simple dictionary with key as string and value as any of the primitive
+                        types however a Feature can include any picklable value as part of its dictionary apart from
+                        "geometry", "properties" and "type".</p>
+                    <div class="well">
+                        <code class="python" data-lang="python">
+                            >>> from geojson import Feature, Point, FeatureCollection<br/><br/>
+
+                            >>> my_feature = Feature(geometry=Point((1.6432, -19.123)))<br/>
+                            >>> my_feature["properties"]["temperature"] = 32.5<br/>
+                            >>> my_other_feature = Feature(geometry=Point((-80.234, -22.532)))<br/>
+                            >>> my_other_feature["properties"]["temperature"] = 20.7<br/>
+
+                            >>> myftc = FeatureCollection([my_feature, my_other_feature]) # doctest: +ELLIPSIS<br/>
+                            >>> myftc["columns"] = {"temperature" : "FLOAT"}<br/>
+                            >>> print myftc<br/>
+                            {"features": [{"geometry": {"coordinates": [1.643..., -19.12...], "type": "Point"},<br/>
+                            "properties": {"temperature": 32.5},<br/>
+                            "type": "Feature"<br/>
+                            },<br/>
+                            {"geometry": {"coordinates": [-80.23..., -22.53...], "type": "Point"},<br/>
+                            "properties": {"temperature": 20.7},<br/>
+                            "type": "Feature"<br/>
+                            }],<br/>
+                            "columns": {"temperature" : "FLOAT"},<br/>
+                            "type": "FeatureCollection"<br/>
+                            }
+                        </code>
+                    </div>
+                    <h2 id="ot-mftc"><a href="#ot-mftc"></a>Multi Collection</h2>
+                    <p>Data is represented as a python List of <a class="ext"
+                                                                  href="https://pypi.python.org/pypi/geojson/#featurecollection">
+                        geojson.FeatureCollection</a>s</p>
+                    <h2 id="ot-generic-list"><a href="#ot-generic-list"></a>Generic List</h2>
+                    <p>Data is represented as a python list of any pickable python objects.</p>
+                </div>
+                <div class="bs-docs-section">
+                    <h1 class="page-header" id="script-usage"><a href="#script-usage"></a>Script Usage</h1>
+                    <p class="lead">Scripts should make use of the internal variables <code>__input__</code> to get the
+                        input data and assign the output to <code>__output__</code> to make the data available to its
+                        dependents.</p>
+                    <h2 id="su-read-data"><a href="#su-read-data"></a>Reading Data</h2>
+                    <p>Reading data for a root component</p>
+                    <div class="well" style="margin-top: 10px;">
+                        <code>
+                            csv_list = __input__
+                        </code>
+                    </div>
+
+                    <p>Reading data for a non-root component having <code>component-1</code> and <code>combiner-1</code>
+                        as its parents. <code>component-1</code> and <code>combiner-1</code> are id values of the
+                        parent component and combiner respectively</p>
+                    <div class="well" style="margin-top: 10px;">
+                        <code>
+                            parent1 = __input__["component-1"]<br>
+                            parent2 = __input__["combiner-1"]
+                        </code>
+                    </div>
+
+                    <p>Reading data for a combiner.</p>
+                    <div class="well" style="margin-top: 10px;">
+                        <code>
+                            generic_list = __input__
+                        </code>
+                    </div>
+
+                    <h2 id="su-write-data"><a href="#su-write-data"></a>Writing Data</h2>
+                    <p>To write data, build a structure of the chosen output type and assign it to
+                        <code>__output__</code></p>
+                    <div class="well" style="margin-top: 10px;">
+                        <code>
+                            __output__ = csv_list
+                        </code>
+                    </div>
+
+                    <h2 id="su-visualizers"><a href="#su-visualizers"></a>Visualizers</h2>
+                    <p>Components and Combiners can be visualized if the output type is either a Feature Collection or
+                        Multi Collection. Enabling visualization on these elements will create a Google Fusion Table for
+                        the output produced by these elements and share with the interested parties mentioned in the
+                        component/combiner screen. To get the fusion table key in components whose parents are
+                        visualizers. For multi collections, a single string will have all fusion table keys separated by
+                        comma. In the following example <code>combiner-1</code> is a visualizer that produces multi
+                        collection output
+                        and <code>component-1</code> is also a visualizer that produces a feature collection as its
+                        ouput.</p>
+                    <div class="well" style="margin-top: 10px;">
+                        <code>
+                            >>> component_ftkey = __input__["ftkey"]["component-1"]<br>
+                            >>> combiner_ftkey = __input__["ftkey"]["combiner-1"]<br>
+                            >>> print component_ftkey<br>
+                            10tSob7imDONyigihnAamYK7kmidDz2l6H5b1qVSf<br>
+                            >>> print combiner_ftkey<br>
+                            1oMf16v9Iw4lmoOLKmjRB5hnZIXVVcWfK_rGHrtC7,1QsFzkZJtLkBeF0NkN-piGjdXl_JEnxnCk_-LAgSK<br>
+                        </code>
+                    </div>
+
+                    <h2 id="su-earth-engine"><a href="#su-earth-engine"></a>Earth Engine</h2>
+                    <p>Columbus makes use of <a class="ext" href="https://developers.google.com/earth-engine/">Google
+                        Earth Engine</a> to do all the GIS computations. Below are a few
+                        examples to obtain the earth engine from Columbus, getting the Columbus compatible geojson for
+                        the Earth Engine's FeatureCollection and how to use fusion tables with Earth Engine.</p>
+                    <p>obtaining Google Earth Engine to do GIS computations.</p>
+                    <div class="well" style="margin-top: 10px;">
+                        <code>
+                            from pyedf.security import CredentialManager<br>
+                            <br>
+                            ee = CredentialManager.get_earth_engine()
+                        </code>
+                    </div>
+                    <p>obtaining GeoJSON from earth engine FeatureCollection.</p>
+                    <div class="well" style="margin-top: 10px;">
+                        <code>
+                            from pyedf.gee import get_geojson<br><br>
+                            ftc = ee.FeatureCollection('ft:1oMf16v9Iw4lmoOLKmjRB5hnZIXVVcWfK_rGHrtC7')<br>
+                            ftc_geojson = get_geojson(ftc)
+                        </code>
+                    </div>
+                    <p>Using Fusion Table with Google Earth Engine.</p>
+                    <div class="well" style="margin-top: 10px;">
+                        <code>
+                            ftkey = __input__['ftkey']['component-1']<br>
+                            # Loading data from fusion table<br>
+                            ftc = ee.FeatureCollection('ft:' + str(ftkey))
+                        </code>
+                    </div>
+                    <h2 id="su-email"><a href="#su-email"></a>Sending Email</h2>
+                    <p>Columbus allows you to send an email from with in your script so you can decide when to send an
+                        email and completely
+                        take control of how the email content should look - whether to use plain text or rich HTML.</p>
+                    <div class="well" style="margin-top: 10px;">
+                        <code>
+                            from pyedf.email import send_mail<br/><br/>
+                            send_email(['abc@xyz.com', 'def@pqr.com'], 'Subject of the Message',<br/>
+                            'Hi There! This is a plain text message body',<br/>
+                            '&lt;b>Hi There!&lt;/b>&lt;br/>&lt;p>This is a HTML message body&lt;/p>')
+                        </code>
+                    </div>
+                </div>
+                <div class="bs-docs-section">
+                    <h1 class="page-header" id="limitations"><a href="#limitations"></a>Limitations</h1>
+                    <p class="lead">As of the current version, Columbus supports Google Bigquery and Google Drive as the
+                        Data source options to
+                        the workflow. Only csv files and fusion tables are listed when a user chooses Google Drive as
+                        the data source.</p>
+                </div>
+                <div class="bs-docs-section">
+                    <h1 class="page-header" id="deployment"><a href="#deployment"></a>Deployment</h1>
+                    <p class="lead">Detailed instructions on how to deploy columbus to a Google Compute Engine instance
+                        running Debain(jessie) can be found
+                        <a class="ext" href="https://github.com/jkachika/columbus/blob/master/DEPLOYMENT.md">here</a>.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3" role="complementary">
+                <nav class="bs-docs-sidebar hidden-print hidden-sm hidden-xs affix-top">
+                    <ul class="nav bs-docs-sidenav">
+                        <li class=""><a href="#overview">Overview</a>
+                            <ul class="nav">
+                                <li><a href="#overview-components">Components</a></li>
+                                <li><a href="#overview-workflows">Workflows</a></li>
+                                <li><a href="#overview-combiners">Combiners</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#output-types">Output Types</a>
+                            <ul class="nav">
+                                <li><a href="#ot-csv-list">CSV List</a></li>
+                                <li><a href="#ot-feature">Feature</a></li>
+                                <li><a href="#ot-ftc">Feature Collection</a></li>
+                                <li><a href="#ot-mftc">Multi Collection</a></li>
+                                <li><a href="#ot-generic-list">Generic List</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#script-usage">Script Usage</a>
+                            <ul class="nav">
+                                <li><a href="#su-read-data">Reading Data</a></li>
+                                <li><a href="#su-write-data">Writing Data</a></li>
+                                <li><a href="#su-visualizers">Visualizers</a></li>
+                                <li><a href="#su-earth-engine">Earth Engine</a></li>
+                                <li><a href="#su-email">Sending Email</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#limitations">Limitations</a>
+                        </li>
+                        <li><a href="#deployment">Deployment</a>
+                        </li>
+                    </ul>
+                    <a href="#top" class="back-to-top"> Back to top </a>
+                </nav>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block nlbodyscripts %}
+    <script>
+        $(document).ready(function () {
+            var $navigation = $('#navigation');
+            var $header = $('#content');
+            var $footer = $('footer');
+            var height = $navigation.css('height') + ' - ' + $header.css('height') + ' - ' + $header.css('marginTop') + ' - '
+                    + $header.css('marginBottom') + ' - ' + $footer.css('height') + ' - ' + $footer.css('marginTop') + ' - ' +
+                    $footer.css('marginBottom');
+            $('#overview-div').css('min-height', 'calc(100% - ' + height +')');
+        });
+    </script>
+{% endblock %}

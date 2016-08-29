@@ -89,6 +89,117 @@ header {
     vertical-align: middle;
 }
 
+header.overview {
+    margin-bottom: 0px;
+    color: #6f5499;
+    background-color: #FFF;
+    vertical-align: middle;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+.navbar-brand {
+    font-family: 'Roboto';
+    color: #6f5499;
+}
+
+.navbar-brand:hover {
+    color: #6f5499;
+}
+
+.docs-header {
+    margin-bottom: 40px;
+    padding-top: 60px;
+    padding-bottom: 60px;
+    font-size: 24px;
+    text-align: left;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    position: relative;
+    color: #cdbfe3;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, .1);
+    background-color: #6f5499;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#563d7c), to(#6f5499));
+    background-image: -webkit-linear-gradient(top, #563d7c 0, #6f5499 100%);
+    background-image: -o-linear-gradient(top, #563d7c 0, #6f5499 100%);
+    background-image: linear-gradient(to bottom, #563d7c 0, #6f5499 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#563d7c', endColorstr='#6F5499', GradientType=0);
+    background-repeat: repeat-x;
+    line-height: 1.42857143;
+}
+
+.docs-header h1 {
+    margin-top: 0;
+    color: #fff;
+}
+
+.docs-header p {
+    margin-bottom: 0;
+    font-weight: 300;
+    line-height: 1.4;
+}
+
+.docs-header .lead {
+    margin: 0 auto 20px;
+    font-size: 20px;
+    color: #fff;
+    font-weight: 300;
+    line-height: 1.4;
+}
+
+@media (min-width: 768px) {
+    .docs-header .lead {
+        font-size: 24px;
+    }
+}
+
+@media (min-width: 992px) {
+    .docs-header .lead {
+        width: 80%;
+        font-size: 30px;
+    }
+}
+
+@media (min-width: 768px) {
+    .docs-header h1 {
+        font-size: 60px;
+        line-height: 1;
+    }
+}
+
+@media (min-width: 992px) {
+    .docs-header h1, .docs-header p {
+        margin-right: 380px;
+    }
+}
+
+.featurette-title {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    margin-bottom: 5px;
+    font-size: 30px;
+    font-weight: 400;
+    color: #333;
+}
+
+@media (min-width: 768px) {
+    .featurette-title {
+        font-size: 40px;
+    }
+}
+
+.nav li a {
+    color: #6f5499;
+    text-decoration: none;
+}
+
+span.title:hover {
+    color: #6f5499;
+}
+
+.navbar-nav > .active > a, .navbar-nav > .active > a:hover, .navbar-nav > li > a:hover {
+    color: #463265;
+    background-color: #f9f9f9;
+}
+
 .floater {
     position: relative;
     top: 10px;
@@ -239,6 +350,21 @@ div.bs-searchbox > input {
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(111, 84, 153, .6);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(111, 84, 153, .6);
     z-index: 10;
+}
+
+a.external {
+    color: #6f5499;
+    outline: none !important;
+    border-color: #6f5499;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(111, 84, 153, .6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(111, 84, 153, .6);
+    z-index: 10;
+}
+
+a.external:hover {
+    color: #fff;
+    background-color: #6f5499;
 }
 
 .form-control:enabled:hover, .form-control:focus {
@@ -437,7 +563,7 @@ table.dataTable tbody {
 }
 
 .margintop {
-    margin-top: 35%;
+    margin-top: 20%;
 }
 
 .vertical-center {

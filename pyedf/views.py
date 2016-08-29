@@ -133,6 +133,15 @@ class Home(_LoggedInMixin, View):
         return self.get(request)
 
 
+class NLHome(View):
+    def get(self, request):
+        page = request.GET.get('page', None)
+        if page not in ['overview', 'usage', 'publications', 'releases', 'people']:
+            page = 'nlhome'
+        params = {}
+        return render(request, str(page) + '.html', params)
+
+
 # get the status of the flow requested
 class PeekFlow(_LoggedInMixin, View):
     def get(self, request):

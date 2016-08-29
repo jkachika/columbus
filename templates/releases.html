@@ -1,0 +1,78 @@
+{% extends "nlbase.html" %}
+{% load staticfiles %}
+{% block title %}
+    <title>Releases</title>
+{% endblock %}
+{% block navitems %}
+    <li><a href="/?page=overview">Getting Started</a></li>
+    <li><a href="/?page=usage">Usage</a></li>
+    <li><a href="/?page=publications">Publications</a></li>
+    <li class="active"><a href="/?page=releases">Releases</a></li>
+    <li><a href="/?page=people">People</a></li>
+{% endblock %}
+{% block nlbody %}
+    <div class="docs-header" id="content" tabindex="-1">
+        <div class="container">
+            <h1>Releases</h1>
+            <p>See what's new in the release, download the distribution, know what is supported, not supported, bug
+                fixes,
+                and more.</p>
+        </div>
+    </div>
+    <div id="releases-div" class="container bs-docs-container">
+        <div class="row">
+            <div class="col-md-9" role="main">
+                <div class="bs-docs-section"><h1 class="page-header" id="v1.0.0-alpha">
+                    <a href="#v1.0.0-alpha"></a>Columbus v1.0.0-Alpha
+                </h1>
+                    <p class="lead">This is a pre-production release. You can download the source code below.</p>
+                    <a href="https://github.com/jkachika/columbus/archive/v1.0.0-alpha.zip"
+                       class="btn btn-outline btn-lg external">Download zip</a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="https://github.com/jkachika/columbus/archive/v1.0.0-alpha.tar.gz"
+                       class="btn btn-outline btn-lg external">Download tar.gz</a>
+                    <h2 id="v1.0.0-alpha-supported"><a href="#v1.0.0-alpha-supported"></a>Features</h2>
+                    <ul>
+                        <li>Creation of components, combiners, and workflows</li>
+                        <li>Sharing the workflows with other users</li>
+                        <li>Visualizing components and combiners with interested parties</li>
+                        <li>Creation of constraints</li>
+                        <li>Bigquery or Combiner as data source for workflows</li>
+                        <li>Starting single workflows with 'for' and multiple workflows with 'foreach'</li>
+                        <li>Combining workflows with in specific time range</li>
+                        <li>Supported output types include CSV List, Feature, Feature Collection, Multi Collection and
+                            Generic List.
+                        </li>
+                        <li>History of all workflows run by a user</li>
+                        <li>Downloading data for Feature Collection and Multi Collection</li>
+                        <li>Read access to the visualization files in Google Drive</li>
+                        <li>Deletion of components, combiners and workflows</li>
+                        <li>Deletion of workflow runs in History</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-3" role="complementary">
+                <nav class="bs-docs-sidebar hidden-print hidden-sm hidden-xs affix-top">
+                    <ul class="nav bs-docs-sidenav">
+                        <li class=""><a href="#v1.0.0-alpha">v1.0.0-alpha</a>
+                        </li>
+                    </ul>
+                    <a href="#top" class="back-to-top"> Back to top </a>
+                </nav>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block nlbodyscripts %}
+    <script>
+        $(document).ready(function () {
+            var $navigation = $('#navigation');
+            var $header = $('#content');
+            var $footer = $('footer');
+            var height = $navigation.css('height') + ' - ' + $header.css('height') + ' - ' + $header.css('marginTop') + ' - '
+                    + $header.css('marginBottom') + ' - ' + $footer.css('height') + ' - ' + $footer.css('marginTop') + ' - ' +
+                    $footer.css('marginBottom');
+            $('#releases-div').css('min-height', 'calc(100% - ' + height +')');
+        });
+    </script>
+{% endblock %}

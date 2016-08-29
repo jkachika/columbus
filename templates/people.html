@@ -1,0 +1,142 @@
+{% extends "nlbase.html" %}
+{% load staticfiles %}
+{% block title %}
+    <title>People</title>
+{% endblock %}
+{% block navitems %}
+    <li><a href="/?page=overview">Getting Started</a></li>
+    <li><a href="/?page=usage">Usage</a></li>
+    <li><a href="/?page=publications">Publications</a></li>
+    <li><a href="/?page=releases">Releases</a></li>
+    <li class="active"><a href="/?page=people">People</a></li>
+{% endblock %}
+{% block nlbody %}
+    <div class="docs-header" id="content" tabindex="-1">
+        <div class="container">
+            <h1>People</h1>
+            <p>See who is leading the project, get to know the current and past contributors, their research work and
+                more.</p>
+        </div>
+    </div>
+    <div id="people-div" class="container bs-docs-container">
+        <div class="row">
+            <div class="col-md-12" role="main">
+                <div class="bs-docs-section">
+                    <p class="lead">The Columbus project is being led by
+                        <a class="ext" target="_blank" href="http://www.cs.colostate.edu/~sangmi/">Prof.
+                            Dr. Sangmi Lee Pallickara</a> at Colorado State University. For more information about the
+                        project, please write to her.</p>
+                    <h3 style="margin-top: 50px;">Current Contributors</h3>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th style="line-height: 32px; vertical-align: middle; width: 25%">Student Name</th>
+                            <th style="line-height: 32px; vertical-align: middle; width: 25%">Position</th>
+                            <th style="line-height: 32px; vertical-align: middle; width: 40%">Email</th>
+                            <th style="line-height: 32px; vertical-align: middle; width: 10%">Follow</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td style="line-height: 32px; vertical-align: middle">Johnson Kachikaran</td>
+                            <td style="line-height: 32px; vertical-align: middle">Graduate Student</td>
+                            <td style="line-height: 32px; vertical-align: middle">jcharles@cs.colostate.edu<br/>
+                                johnsoncharles26@gmail.com
+                            </td>
+                            <td style="vertical-align: middle">
+                                <a class="ext" target="_blank" href="https://www.linkedin.com/in/johnsoncharles26">
+                                    <img alt="LinkedIn" src="{% static 'images/linkedin.png' %}"
+                                         width="32px" height="32px" title="LinkedIn"></a>
+                                &nbsp;
+                                <a class="ext" target="_blank" href="https://www.github.com/jkachika">
+                                    <img alt="Github" src="{% static 'images/github.png' %}" width="28px" height="28px"
+                                         title="Github"></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="line-height: 32px; vertical-align: middle">
+                                <a class="ext" target="_blank" href="http://www.cs.colostate.edu/~mroseliu/">
+                                    Maxwell Roselius</a></td>
+                            <td style="line-height: 32px; vertical-align: middle">Undergraduate Student</td>
+                            <td style="line-height: 32px; vertical-align: middle">mroseliu@cs.colostate.edu<br>
+                                maxr1876@{yahoo|gmail}.com
+                            </td>
+                            <td style="vertical-align: middle">
+                                <a class="ext" target="_blank" href="https://www.linkedin.com/in/maxwellroselius">
+                                    <img alt="LinkedIn" src="{% static 'images/linkedin.png' %}"
+                                         width="32px" height="32px" title="LinkedIn"></a>
+                                &nbsp;
+                                <a class="ext" target="_blank" href="https://github.com/maxr1876">
+                                    <img alt="Github" src="{% static 'images/github.png' %}" width="28px" height="28px"
+                                         title="Github"></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="line-height: 32px; vertical-align: middle">Saptashwa Mitra</td>
+                            <td style="line-height: 32px; vertical-align: middle">Graduate Student</td>
+                            <td style="line-height: 32px; vertical-align: middle">saptashwa.mitra@colostate.edu<br>
+                                rikimitra779@gmail.com
+                            </td>
+                            <td style="vertical-align: middle">
+                                <a class="ext" target="_blank"
+                                   href="https://www.linkedin.com/in/saptashwa-mitra-653b9718">
+                                    <img alt="LinkedIn" src="{% static 'images/linkedin.png' %}"
+                                         width="32px" height="32px" title="LinkedIn"></a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <h3 style="margin-top: 50px;">Past Contributors</h3>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th style="line-height: 32px; vertical-align: middle; width: 25%">Student Name</th>
+                            <th style="line-height: 32px; vertical-align: middle; width: 25%">Position</th>
+                            <th style="line-height: 32px; vertical-align: middle; width: 40%">Email</th>
+                            <th style="line-height: 32px; vertical-align: middle; width: 10%">Follow</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td style="line-height: 32px; vertical-align: middle">Duck Keun Yang</td>
+                            <td style="line-height: 32px; vertical-align: middle">Undergraduate Student</td>
+                            <td style="line-height: 32px; vertical-align: middle">duck.yang@rams.colostate.edu<br>
+                                tartona@gmail.com
+                            </td>
+                            <td style="vertical-align: middle">
+                                <a class="ext" target="_blank"
+                                   href="https://www.linkedin.com/in/duck-keun-yang-27409a117">
+                                    <img alt="LinkedIn" src="{% static 'images/linkedin.png' %}"
+                                         width="32px" height="32px" title="LinkedIn"></a>
+                                &nbsp;
+                                <a class="ext" target="_blank" href="https://github.com/tartona">
+                                    <img alt="Github" src="{% static 'images/github.png' %}" width="28px" height="28px"
+                                         title="Github"></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="line-height: 32px; vertical-align: middle">Srinivas Majeti</td>
+                            <td style="line-height: 32px; vertical-align: middle">Graduate Student</td>
+                            <td style="line-height: 32px; vertical-align: middle"></td>
+                            <td style="vertical-align: middle"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block nlbodyscripts %}
+    <script>
+        $(document).ready(function () {
+            var $navigation = $('#navigation');
+            var $header = $('#content');
+            var $footer = $('footer');
+            var height = $navigation.css('height') + ' - ' + $header.css('height') + ' - ' + $header.css('marginTop') + ' - '
+                    + $header.css('marginBottom') + ' - ' + $footer.css('height') + ' - ' + $footer.css('marginTop') + ' - ' +
+                    $footer.css('marginBottom');
+            $('#people-div').css('min-height', 'calc(100% - ' + height +')');
+        });
+    </script>
+{% endblock %}

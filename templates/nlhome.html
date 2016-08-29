@@ -1,0 +1,51 @@
+{% extends "nlbase.html" %}
+{% load staticfiles %}
+{% block title %}
+    <title>Columbus</title>
+{% endblock %}
+{% block nlbody %}
+<div class="docs-header" id="content" tabindex="-1">
+    <div class="container" style="text-align: center">
+        <img src="{% static 'images/logo-wo.png' %}" width="256px" height="256px" style="margin-bottom: 30px;">
+        <h1 style="margin-right: 0px;">Columbus</h1>
+        <p class="lead center">A Cloud based Scientific Workflow and Analytics Engine for large Multi-Dimensional Spatio-Temporal
+            Datasets.</p>
+        <p style="margin: 20px 20px 0px 20px; color: #9783b9; font-size: 16px;">Currently v1.0.0-Alpha</p>
+    </div>
+</div>
+<div id="home-div" class="container" style="text-align: center; margin-bottom: 50px">
+    <h2 class="featurette-title">Streamline your analyses with a Workflow.</h2>
+    <p class="lead center">Develop workflows easily with Columbus and keep track of your analysis without any hassle.
+        Perform complex GIS computations on the web, share results with your fellow users, and more.</p>
+    <hr style="width: 100px; margin: 40px auto;">
+    <div class="row">
+        <p style="text-align: center; width: inherit; color: #6f5499;">Collaborators</p>
+        <img alt="Environmental Defense Fund" style="display: inline-block;"
+             src="{% static 'images/edf_logo.png' %}"
+             width="180px" height="90px;">
+        <img alt="Google Inc." style="display: inline-block; margin-left: 20px; margin-right: 35px;"
+             src="{% static 'images/google-full-logo.jpg' %}"
+             width="160px" height="90px">
+        <img alt="Colorado State University"
+             src="{% static 'images/csu-logo.png' %}"
+             style="display: inline-block" width="210px" height="90px">
+    </div>
+    <hr style="width: 100px; margin: 40px auto;">
+    <p class="lead center">Columbus is open source. It's hosted, developed, and maintained on GitHub.</p>
+    <a href="https://github.com/jkachika/columbus" class="btn btn-outline btn-lg external">View the GitHub
+        project</a>
+</div>
+{% endblock %}
+{% block nlbodyscripts %}
+    <script>
+        $(document).ready(function () {
+            var $navigation = $('#navigation');
+            var $header = $('#content');
+            var $footer = $('footer');
+            var height = $navigation.css('height') + ' - ' + $header.css('height') + ' - ' + $header.css('marginTop') + ' - '
+                    + $header.css('marginBottom') + ' - ' + $footer.css('height') + ' - ' + $footer.css('marginTop') + ' - ' +
+                    $footer.css('marginBottom');
+            $('#home-div').css('min-height', 'calc(100% - ' + height +')');
+        });
+    </script>
+{% endblock %}

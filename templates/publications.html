@@ -1,0 +1,44 @@
+{% extends "nlbase.html" %}
+{% load staticfiles %}
+{% block title %}
+    <title>Publications</title>
+{% endblock %}
+{% block navitems %}
+    <li><a href="/?page=overview">Getting Started</a></li>
+    <li><a href="/?page=usage">Usage</a></li>
+    <li class="active"><a href="/?page=publications">Publications</a></li>
+    <li><a href="/?page=releases">Releases</a></li>
+    <li><a href="/?page=people">People</a></li>
+{% endblock %}
+{% block nlbody %}
+    <div class="docs-header" id="content" tabindex="-1">
+        <div class="container">
+            <h1>Publications</h1>
+            <p>Understanding the architecture, know what the engine is capable of, conducted experiments, results and
+                more.</p>
+        </div>
+    </div>
+    <div id="publications-div" class="container bs-docs-container">
+        <div class="row" style="flex-grow: 1;">
+            <div class="col-md-12" role="main">
+                <div class="bs-docs-section">
+                    <h3>Coming soon...
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block nlbodyscripts %}
+    <script>
+        $(document).ready(function () {
+            var $navigation = $('#navigation');
+            var $header = $('#content');
+            var $footer = $('footer');
+            var height = $navigation.css('height') + ' - ' + $header.css('height') + ' - ' + $header.css('marginTop') + ' - '
+                    + $header.css('marginBottom') + ' - ' + $footer.css('height') + ' - ' + $footer.css('marginTop') + ' - ' +
+                    $footer.css('marginBottom');
+            $('#publications-div').css('min-height', 'calc(100% - ' + height +')');
+        });
+    </script>
+{% endblock %}

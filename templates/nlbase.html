@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}{% endblock %}
+    <link rel="shortcut icon" href="{% static 'images/logo512.png' %}"/>
+    <!--Loading the bootstrap css-->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" media="screen"/>
+    <!-- Loading the Roboto font. -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+    <!-- Loading jQuery, a 3rd-party library. -->
+    <script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
+
+    <link href="{% static 'css/bs-docs.css' %}" rel="stylesheet" media="screen"/>
+    <!-- Loading the columbus css -->
+    <link href="{% static 'css/columbus-style.css' %}" rel="stylesheet" media="screen"/>
+    <!-- Loading bootstrap.js -->
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    {% block nlheaders %}{% endblock %}
+    <style>
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.42857143;
+            color: #333;
+            background-color: #fff;
+            text-align: justify;
+        }
+
+        p.center {
+            text-align: center;
+        }
+
+        a.ext {
+            text-decoration: none;
+            color: #6f5499;
+        }
+
+        @media (min-width: 768px) {
+            .lead {
+                font-size: 20px;
+            }
+        }
+        blockquote {
+            background-color: #FFF9C4;
+            border-color: #FFEB3B;
+        }
+    </style>
+</head>
+<body>
+<script src="{% static 'js/bs-docs.min.js' %}"></script>
+<header id="navigation" class="overview bs-docs-nav navbar navbar-static-top" id="top">
+    <div style="width: 100%; height: 5px; background-color: #6f5499; text-align: center">
+    </div>
+    <div class="container">
+        <div class="navbar-header">
+            <a href="/" class="navbar-brand">Columbus</a>
+        </div>
+        <nav class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="nav navbar-nav">
+                {% block navitems %}
+                    <li><a href="/?page=overview">Getting Started</a></li>
+                    <li><a href="/?page=usage">Usage</a></li>
+                    <li><a href="/?page=publications">Publications</a></li>
+                    <li><a href="/?page=releases">Releases</a></li>
+                    <li><a href="/?page=people">People</a></li>
+                {% endblock %}
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/login">Login</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+{% block nlbody %}{% endblock %}
+{% block nlbodyscripts %} {% endblock %}
+<footer class="bs-docs-footer">
+    <div class="container">
+        <ul class="bs-docs-footer-links">
+            <li><a target="_blank" href="https://github.com/jkachika/columbus">GitHub</a></li>
+            <li><a target="_blank" href="https://www.galileo.cs.colostate.edu">Galileo</a></li>
+            <li><a target="_blank" href="http://www.cs.colostate.edu">CSU</a></li>
+        </ul>
+        <p>Design credits: <a href="https://twitter.com/mdo" target="_blank">@mdo</a> and <a
+                href="https://twitter.com/fat" target="_blank">@fat</a>. Maintained by <a
+                href="/?page=people">Johnson Kachikaran</a>.</p>
+        <p>Code licensed <a href="https://github.com/jkachika/columbus/blob/master/LICENSE.txt" target="_blank" rel="license">MIT</a>,
+            docs <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="license">CC BY 3.0</a>.</p>
+    </div>
+</footer>
+</body>
+</html>
