@@ -32,82 +32,82 @@ function sameOrigin(url) {
         !(/^(\/\/|http:|https:).*/.test(url));
 }
 
-function checkDriveAuth() {
-    gapi.auth.authorize({
-        'client_id': CLIENT_ID,
-        'scope': SCOPES.join(' '),
-        'immediate': true
-    }, handleDriveAuthResult);
-}
+/*function checkDriveAuth() {
+ gapi.auth.authorize({
+ 'client_id': CLIENT_ID,
+ 'scope': SCOPES.join(' '),
+ 'immediate': true
+ }, handleDriveAuthResult);
+ }
 
-function handleDriveAuthResult(authResult) {
-    if (authResult && !authResult.error) {
-        $('#g-sign-in').addClass('hidden');
-        $('#floatingDiv').removeClass('hidden');
-        loadDriveApi();
-    } else {
-        // Show auth UI, allowing the user to initiate authorization by
-        // clicking authorize button.
-        $('#floatingDiv').addClass('hidden');
-        $('#g-sign-in').removeClass('hidden');
-        $('.g-sign-in').removeClass('hidden');
-        $('.g-sign-in .button').click(function () {
-            // If the login succeeds, hide the login button and run the analysis.
-            //$('.g-sign-in').addClass('hidden');
-            gapi.auth.authorize({
-                'client_id': CLIENT_ID,
-                'scope': SCOPES.join(' '),
-                'immediate': false
-            }, handleDriveAuthResult);
-        });
-    }
-}
+ function handleDriveAuthResult(authResult) {
+ if (authResult && !authResult.error) {
+ $('#g-sign-in').addClass('hidden');
+ $('#floatingDiv').removeClass('hidden');
+ loadDriveApi();
+ } else {
+ // Show auth UI, allowing the user to initiate authorization by
+ // clicking authorize button.
+ $('#floatingDiv').addClass('hidden');
+ $('#g-sign-in').removeClass('hidden');
+ $('.g-sign-in').removeClass('hidden');
+ $('.g-sign-in .button').click(function () {
+ // If the login succeeds, hide the login button and run the analysis.
+ //$('.g-sign-in').addClass('hidden');
+ gapi.auth.authorize({
+ 'client_id': CLIENT_ID,
+ 'scope': SCOPES.join(' '),
+ 'immediate': false
+ }, handleDriveAuthResult);
+ });
+ }
+ }
 
-function loadDriveApi() {
-    gapi.client.load('drive', 'v3', listDriveFiles);
-}
+ function loadDriveApi() {
+ gapi.client.load('drive', 'v3', listDriveFiles);
+ }*/
 
-function listDriveFiles(runType) {
-    if (!runType)
-        runType = $('input[name=gd-run-type]:checked').val();
-    var query = "mimeType = 'application/vnd.google-apps.folder'";
-    if (runType == 'for')
-        query = "mimeType = 'application/vnd.google-apps.fusiontable' or fileExtension='csv'";
-    var request = gapi.client.drive.files.list({
-        'pageSize': 1000,
-        'fields': "nextPageToken, files(id, name, mimeType, fileExtension)",
-        'q': query,
-        'orderBy': 'viewedByMeTime desc'
-    });
-    var $gdIdentifier = $('#gd-identifier');
-    $gdIdentifier.html('');
-    showOverlay();
-    var callback = function (resp) {
-        var html = [];
-        var files = resp.files;
-        if (files && files.length > 0) {
-            for (var i = 0; i < files.length; i++) {
-                var file = files[i];
-                html.push('<option value="' + file.id + '">' + file.name + '</option>');
-            }
-            $gdIdentifier.append(html.join(''));
-        }
-        if (resp.nextPageToken) {
-            request = gapi.client.drive.files.list({
-                'pageSize': 1000,
-                'pageToken': resp.nextPageToken,
-                'fields': "nextPageToken, files(id, name, mimeType, fileExtension)",
-                'q': query,
-                'orderBy': 'viewedByMeTime desc'
-            });
-            request.execute(callback);
-        } else {
-            hideOverlay();
-            initializeScrollOnHover($gdIdentifier);
-        }
-    };
-    request.execute(callback);
-}
+/*function listDriveFiles(runType) {
+ if (!runType)
+ runType = $('input[name=gd-run-type]:checked').val();
+ var query = "mimeType = 'application/vnd.google-apps.folder'";
+ if (runType == 'for')
+ query = "mimeType = 'application/vnd.google-apps.fusiontable' or fileExtension='csv'";
+ var request = gapi.client.drive.files.list({
+ 'pageSize': 1000,
+ 'fields': "nextPageToken, files(id, name, mimeType, fileExtension)",
+ 'q': query,
+ 'orderBy': 'viewedByMeTime desc'
+ });
+ var $gdIdentifier = $('#gd-identifier');
+ $gdIdentifier.html('');
+ showOverlay();
+ var callback = function (resp) {
+ var html = [];
+ var files = resp.files;
+ if (files && files.length > 0) {
+ for (var i = 0; i < files.length; i++) {
+ var file = files[i];
+ html.push('<option value="' + file.id + '">' + file.name + '</option>');
+ }
+ $gdIdentifier.append(html.join(''));
+ }
+ if (resp.nextPageToken) {
+ request = gapi.client.drive.files.list({
+ 'pageSize': 1000,
+ 'pageToken': resp.nextPageToken,
+ 'fields': "nextPageToken, files(id, name, mimeType, fileExtension)",
+ 'q': query,
+ 'orderBy': 'viewedByMeTime desc'
+ });
+ request.execute(callback);
+ } else {
+ hideOverlay();
+ initializeScrollOnHover($gdIdentifier);
+ }
+ };
+ request.execute(callback);
+ }*/
 
 $(document).ready(function () {
     //need to show the shadow below the header
@@ -399,7 +399,9 @@ function chooseDatasource(choice) {
                     $(files).each(function (index, file) {
                         html.push('<option value="' + file.id + '">' + file.name + '</option>');
                     });
-                    $('#gd-identifier').html(html.join('')).selectpicker('refresh');
+                    var $gdIdentifier = $('#gd-identifier');
+                    $gdIdentifier.html(html.join(''));
+                    initializeScrollOnHover($gdIdentifier);
                 } else if (response.what == 'error') {
                     showErrorGrowl('Something went wrong!', response.result + '. If the issue persists, please seek support.');
                 }
@@ -442,7 +444,9 @@ function chooseDriveRunType(runType) {
                 $(files).each(function (index, file) {
                     html.push('<option value="' + file.id + '">' + file.name + '</option>');
                 });
-                $('#gd-identifier').html(html.join('')).selectpicker('refresh');
+                var $gdIdentifier = $('#gd-identifier');
+                $gdIdentifier.html(html.join(''));
+                initializeScrollOnHover($gdIdentifier);
             } else if (response.what == 'error') {
                 showErrorGrowl('Something went wrong!', response.result + '. If the issue persists, please seek support.');
             }

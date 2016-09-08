@@ -14,19 +14,46 @@ from columbus.settings import TEMP_DIRPATH
 from pyedf.security import CredentialManager
 
 
-def list_files(json_credentials, query=None, order_by=None):
+def list_files(json_credentials, query=None, order_by=None, files=False):
     drive_service = CredentialManager.build_drive_service(json_credentials)
     response = drive_service.files().list(orderBy=order_by, q=query, pageSize=1000,
-                                          fields='nextPageToken, files(id, name, mimeType, fileExtension)').execute()
-    result = []
+                                          fields='nextPageToken, files(id, name, mimeType, fileExtension, parents)').execute()
+    result, resources, names, parents = [], [], {}, {}
     for drive_file in response.get('files', []):
-        result.append({'id': drive_file['id'], 'name': drive_file['name']})
+        names[str(drive_file['id'])] = str(drive_file['name'])
+        parents[str(drive_file['id'])] = drive_file.get('parents', [])
+        resources.append({'id': drive_file['id'], 'name': drive_file['name'],
+                          'parents': [str(parent) for parent in drive_file.get('parents', [])],
+                          'mimeType': drive_file['mimeType']})
     while response.get('nextPageToken', None):
         drive_files = drive_service.files()
         response = drive_files.list(orderBy=order_by, q=query, pageSize=1000, pageToken=response['nextPageToken'],
-                                    fields='nextPageToken, files(id, name, mimeType, fileExtension)').execute()
+                                    fields='nextPageToken, files(id, name, mimeType, fileExtension, parents)').execute()
         for drive_file in response.get('files', []):
-            result.append({'id': drive_file['id'], 'name': drive_file['name']})
+            names[str(drive_file['id'])] = str(drive_file['name'])
+            parents[str(drive_file['id'])] = drive_file.get('parents', [])
+            resources.append({'id': drive_file['id'], 'name': drive_file['name'],
+                              'parents': [str(parent) for parent in drive_file.get('parents', [])],
+                              'mimeType': drive_file['mimeType']})
+    for resource in resources:
+        if resource['parents']:
+            for parent in resource['parents']:
+                path = str(names.get(parent, '')) + str('/') + str(resource['name'])
+                while parents.get(parent, []):
+                    parent = str(parents[parent][0])
+                    path = str(names.get(parent, '')) + str('/') + path
+                resource['name'] = path
+                if files:
+                    if resource['mimeType'] != 'application/vnd.google-apps.folder':
+                        result.append(resource)
+                else:
+                    result.append(resource)
+        else:
+            if files:
+                if resource['mimeType'] != 'application/vnd.google-apps.folder':
+                    result.append(resource)
+            else:
+                result.append(resource)
     return result
 
 

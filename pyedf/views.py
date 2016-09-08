@@ -249,9 +249,11 @@ class DatasourceAsync(_LoggedInMixin, View):
                 run_type = request.GET.get('runtype', 'for')
                 try:
                     result = list_files(security.credentials,
-                                        query="mimeType = 'application/vnd.google-apps.fusiontable' or fileExtension='csv' and trashed = false"
-                                        if run_type == 'for' else "mimeType = 'application/vnd.google-apps.folder' and trashed = false",
-                                        order_by="viewedByMeTime desc")
+                                        query="mimeType = 'application/vnd.google-apps.fusiontable' or \
+                                        mimeType = 'application/vnd.google-apps.folder' or fileExtension='csv' \
+                                        and trashed = false" if run_type == 'for' else "mimeType = \
+                                        'application/vnd.google-apps.folder' and trashed = false",
+                                        order_by="viewedByMeTime desc", files=True if run_type == 'for' else False)
                     return JsonResponse({'what': 'files', 'result': result})
                 except errors.HttpError, err:
                     if err.resp.status == 401:
