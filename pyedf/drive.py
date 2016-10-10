@@ -90,6 +90,8 @@ def get_file_contents(json_credentials, file_id, meta_err=False):
                     row_dict = {}
                     for index, column in enumerate(row):
                         row_dict[header[index]] = str(column).strip()
+                    for i in range(len(row), len(header)):
+                        row_dict[header[i]] = ''
                     rows.append(row_dict)
         return rows
     elif metadata.get('mimeType', None) == 'application/vnd.google-apps.fusiontable':

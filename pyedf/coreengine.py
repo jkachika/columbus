@@ -168,7 +168,8 @@ def get_output(fsid, what, ftcindex=0, order_by=0, desc=False, fields=None):
     element = get_element(fsid)
     info('getting ' + what + ' for ftcindex - ' + str(ftcindex))
     if what == 'columns':
-        return get_columns(element=element, ftcindex=ftcindex)
+        columns = get_columns(element=element, ftcindex=ftcindex)
+        return [str(column).replace(' ', '_').replace('-', '_') for column in columns]
     elif what == 'data':
         direction = 'asc' if not desc else 'desc'
         columns = get_columns(element=element, ftcindex=ftcindex)
