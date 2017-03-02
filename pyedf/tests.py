@@ -249,147 +249,16 @@ def massage_scheduling_results(filename, username='system', strategy=None):
             handle.write("%s,%s,%d,%s,%s" % (strategy, filesystem, last_instant, worker, ",".join(line)))
 
 
-def send_email_test():
-    EMAIL_HOST = 'smtp.sendgrid.net'
-    EMAIL_HOST_USER = 'jkachika'
-    EMAIL_HOST_PASSWORD = '18-aug-1990'
-    EMAIL_PORT = 2525
-    EMAIL_USE_TLS = True
-    EMAIL_SENDER = 'Columbus <noreply@columbus-sandbox.tk>'
-
-    import smtplib
-
-    from email.mime.multipart import MIMEMultipart
-    from email.mime.text import MIMEText
-    from email.mime.image import MIMEImage
-
-    # me == my email address
-    # you == recipient's email address
-    sender = EMAIL_SENDER
-    receivers = ["johnsoncharles26@gmail.com"]
-
-    msg_root = MIMEMultipart('related')
-    msg_root['Subject'] = "Welcome to Columbus"
-    msg_root['From'] = sender
-    # msg_root['To'] = receivers
-
-    # Create message container - the correct MIME type is multipart/alternative.
-    msg_alt = MIMEMultipart('alternative')
-    msg_root.attach(msg_alt)
-
-    # Create the body of the message (a plain-text and an HTML version).
-    template_prefix = """<html>
-                    <head>
-                        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
-                        <style type="text/css">
-                        .container {
-                            width:100%;
-                            background-color:#6f5499;
-                            height:60px;
-                            border-top-right-radius: 10px;
-                            border-top-left-radius: 10px;
-                        }
-
-
-                        .header {
-                            margin:0px;
-                            color:white;
-                            font-size: 42px;
-                            font-family: Roboto, lucida sans unicode,lucida grande,sans-serif;
-                            display: inline-block;
-                            height:60px;
-                            line-height: 60px;
-                            font-weight: 500;
-                            float: left;
-                        }
-
-                        div.content{
-                            min-height: 240px;
-                            font-size: 12px;
-                            border: 2px solid #6f5499;
-                            padding: 10px;
-                        }
-
-                        .footer {
-                            width:100%;
-                            background-color:#6f5499;
-                            padding: 5px 0px 5px 0px;
-                            color:white;
-                            font-size:9px;
-                            text-align: center;
-                            border-bottom-left-radius: 10px;
-                            border-bottom-right-radius: 10px;
-                        }
-                        </style>
-                    </head>
-                    <body>
-                    <div class="container">
-                    <div style="float:left; display: inline-block;">
-                    <img alt="Columbus" height="48" src="cid:logo"
-                    style="width: 48px; height: 48px; margin: 6px;" width="48" />
-                    </div>
-                    <h1 class="header">Columbus</h1>
-                    </div>
-
-                    <div class="content">
-                    """
-    template_suffix = """
-                    </div>
-                    <div class="footer">***This is a system generated email.<br/>
-                            Replies to this email will be delivered to the original sender.***</div>
-                    </body>
-                    </html>
-                    """
-    html = """
-        <p>Hi There!<br><br>
-           A leak has been identified as anamoly. Here are the details about this leak.<br>
-           <br>
-           Thanks!
-        </p>
-        """
-
-    text = "Hi There!\n\nA leak has been identified as anamoly. Here are the details about this leak.\n\nThanks!"
-
-    # Record the MIME types of both parts - text/plain and text/html.
-    part1 = MIMEText(text, 'plain')
-    part2 = MIMEText("%s%s%s" % (template_prefix, html, template_suffix), 'html')
-
-    # Attach parts into message container.
-    # According to RFC 2046, the last part of a multipart message, in this case
-    # the HTML message, is best and preferred.
-    msg_alt.attach(part1)
-    msg_alt.attach(part2)
-
-    with open("../static/images/logo-wo.png", "rb") as logo_handle:
-        logo = MIMEImage(logo_handle.read())
-        logo.add_header('Content-ID', '<logo>')
-        msg_root.attach(logo)
-    msg_root.add_header("reply-to", "columbus.csu@gmail.com")
-
-    # Send the message via local SMTP server.
-    sendgrid = smtplib.SMTP(host=EMAIL_HOST, port=EMAIL_PORT)
-    sendgrid.ehlo()
-    if EMAIL_USE_TLS:
-        sendgrid.starttls()
-        sendgrid.ehlo()
-    sendgrid.login(user=EMAIL_HOST_USER, password=EMAIL_HOST_PASSWORD)
-    # sendmail function takes 3 arguments: sender's address, recipient's address
-    # and message to send - here it is sent as one string.
-    sendgrid.sendmail(sender, receivers, msg_root.as_string())
-    sendgrid.quit()
-
-
 if __name__ == "__main__":
-    # process_all_queries()
-    # massage_scheduling_results('../data/gh4ng1-jcharles.csv', 'jcharles')
-    # massage_scheduling_results('../data/gh4ng1-joe.csv', 'joe')
-    # massage_scheduling_results('../data/gh4ng1-sangmi.csv', 'sangmi')
-    # massage_scheduling_results('../data/gh4ng1-max.csv', 'max')
-    # massage_scheduling_results('../data/gh4ng1-remote.csv', strategy='remote')
-    # massage_scheduling_results('../data/gh4ng1-hybrid.csv', strategy='hybrid')
-    # massage_scheduling_results('../data/gh4ng1-local.csv', strategy='local')
-    #
-    # massage_scheduling_results('../data/gh4ng1-hybrid2.csv', strategy='hybrid2')
-    # massage_scheduling_results('../data/gh4ng1-hybrid3.csv', strategy='hybrid3')
-    # massage_scheduling_results('../data/gh4ng1-remote2.csv', strategy='remote2')
-    send_email_test()
+    process_all_queries()
+    massage_scheduling_results('../data/gh4ng1-jcharles.csv', 'jcharles')
+    massage_scheduling_results('../data/gh4ng1-joe.csv', 'joe')
+    massage_scheduling_results('../data/gh4ng1-sangmi.csv', 'sangmi')
+    massage_scheduling_results('../data/gh4ng1-max.csv', 'max')
+    massage_scheduling_results('../data/gh4ng1-remote.csv', strategy='remote')
+    massage_scheduling_results('../data/gh4ng1-hybrid.csv', strategy='hybrid')
+    massage_scheduling_results('../data/gh4ng1-local.csv', strategy='local')
+
+    massage_scheduling_results('../data/gh4ng1-hybrid2.csv', strategy='hybrid2')
+    massage_scheduling_results('../data/gh4ng1-hybrid3.csv', strategy='hybrid3')
+    massage_scheduling_results('../data/gh4ng1-remote2.csv', strategy='remote2')
