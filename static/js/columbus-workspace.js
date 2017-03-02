@@ -455,10 +455,64 @@ $(document).ready(function () {
 
     initializeScrollOnHover($('#w-schedule'));
     var $wtables = $('#wtables');
+    var $csource = $('#constraint-source');
     var $ctable = $('#constraint-table');
     var $wfeature = $('#w-feature-label');
     var $wautorun = $('#workflow-auto-run-div');
     var $where = $('#where-clause');
+
+    $csource.on('change', function () {
+        var source = $(this).val();
+        var url = source == "bigquery" ? "/bigquery/?name=tables" : "/galileo/?route=filesystem&q=names";
+        showOverlay();
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            timeout: 60000,
+            success: function (response) {
+                var html = [];
+                if (source == "bigquery") {
+                    $.each(response.result, function (index, group) {
+                        for (var name in group) {
+                            html.push("<optgroup label='" + name + "'>");
+                            $.each(group[name], function (index, table) {
+                                html.push("<option value='" + name + "." + table + "' title='" + name + "." + table + "'>"
+                                    + table + "</option>");
+                            });
+                            html.push("</optgroup>");
+                        }
+                    });
+                } else {
+                    if (response.what == 'filesystem#names') {
+                        var filesystems = response.result;
+                        $(filesystems).each(function (index, filesystem) {
+                            html.push('<option value="' + filesystem.name + '" data-earliest="' + filesystem.earliestTime +
+                                '" data-latest="' + filesystem.latestTime + '">' + filesystem.name + '</option>');
+                        });
+                    } else if (response.what == 'error') {
+                        showErrorGrowl('Something went wrong!', response.result + '. If the issue persists, please seek support.');
+                    }
+                }
+                html = html.join('');
+                $ctable.prop('title', source == 'galileo' ? 'Choose a filesystem' : 'Choose a table');
+                $ctable.html(html);
+                initializeScrollOnHover($ctable);
+                hideOverlay();
+            },
+            error: function (jqXHR, textStatus) {
+                hideOverlay();
+                if (textStatus === 'timeout') {
+                    showErrorGrowl('Server timed out!',
+                        'Try refreshing the browser. If the issue persists, please seek support.');
+                } else {
+                    showErrorGrowl('Something went wrong!', 'If the issue persists, please seek support.');
+                }
+            }
+        });
+    });
+
+
     $('#wauto').change(function () {
         if ($(this).is(':checked')) {
             $wautorun.find('input').removeAttr('disabled');
@@ -470,7 +524,7 @@ $(document).ready(function () {
             });
             if (!_bqtablesInitialized) {
                 $.ajax({
-                    url: "/service/?name=tables",
+                    url: "/bigquery/?name=tables",
                     type: 'GET',
                     dataType: 'json',
                     timeout: 60000,
@@ -514,7 +568,7 @@ $(document).ready(function () {
     $wtables.on('change', function () {
         var table = $(this).val();
         $.ajax({
-            url: "/service/?name=features&table=" + table,
+            url: "/bigquery/?name=features&table=" + table,
             type: 'GET',
             dataType: 'json',
             timeout: 60000,
@@ -540,7 +594,7 @@ $(document).ready(function () {
         });
 
         $.ajax({
-            url: "/elements/?name=constraint&table=" + table,
+            url: "/elements/?name=constraint&source=bigquery&table=" + table,
             type: 'GET',
             dataType: 'json',
             timeout: 10000,
@@ -567,19 +621,30 @@ $(document).ready(function () {
 
     var $cfeature = $('#feature-label');
     $ctable.on('change', function () {
+        var source = $csource.val();
         var table = $(this).val();
+        var url = (source == "galileo" ? "/galileo/?route=features&fsname=" + table : "/bigquery/?name=features&table=" + table);
         $.ajax({
-            url: "/service/?name=features&table=" + table,
+            url: url,
             type: 'GET',
             dataType: 'json',
             timeout: 60000,
             success: function (response) {
                 var html = [];
-                $.each(response.result, function (index, feature) {
-                    for (var name in feature) {
-                        html.push("<option data-type='" + feature[name] + "' value='" + name + "'>" + name + "</option>");
-                    }
-                });
+                if (source == "bigquery") {
+                    $.each(response.result, function (index, feature) {
+                        for (var name in feature) {
+                            html.push("<option data-type='" + feature[name] + "' value='" + name + "'>" + name + "</option>");
+                        }
+                    });
+                } else {
+                    var dataTypes = {"INTEGER": 1, "LONG": 2, "FLOAT": 3, "DOUBLE": 4, "STRING": 9};
+                    $.each(response.result[0][table], function (index, feature) {
+                        if (!(feature.name.startsWith("x__") && feature.name.endsWith("__x")))
+                            html.push("<option data-type='" + dataTypes[feature.type] + "' value='" + feature.name + "'>" +
+                                "" + feature.name + "</option>");
+                    });
+                }
                 $cfeature.html(html.join(''));
                 initializeScrollOnHover($cfeature);
             },
@@ -594,7 +659,7 @@ $(document).ready(function () {
         });
 
         $.ajax({
-            url: "/elements/?name=constraint&table=" + table,
+            url: "/elements/?name=constraint&source=" + source + "&table=" + table,
             type: 'GET',
             dataType: 'json',
             timeout: 10000,
@@ -610,6 +675,7 @@ $(document).ready(function () {
                         "<span style='font-size: 11px; font-weight: 100'>" + constraint.time + "</span>" +
                         "<div style='font-size: 14px; font-weight: 300; margin-top: 10px;'" +
                         "id='expression-" + constraint.id + "' class='collapse'> Table - " + constraint.table +
+                        "<br/> Source - " + constraint.source +
                         "<br/> Expression - " + constraint.expression + "</div></div>";
                     $conditionListview.append(newdiv);
                 });
@@ -636,7 +702,7 @@ $(document).ready(function () {
         var table = $wtables.val();
         var feature = $(this).val();
         $.ajax({
-            url: "/service/?name=first&table=" + table + "&feature=" + feature,
+            url: "/bigquery/?name=first&table=" + table + "&feature=" + feature,
             type: 'GET',
             dataType: 'json',
             timeout: 60000,
@@ -665,38 +731,43 @@ $(document).ready(function () {
     });
 
     $cfeature.on('change', function () {
+        var source = $csource.val();
         var table = $ctable.val();
         var feature = $(this).val();
-        $.ajax({
-            url: "/service/?name=first&table=" + table + "&feature=" + feature,
-            type: 'GET',
-            dataType: 'json',
-            timeout: 60000,
-            success: function (response) {
-                var suggestions = [];
-                $.each(response.result.rows, function (index, feature) {
-                    suggestions.push(feature[0]["v"]);
-                });
-                var $bqvalue = $('#feature-value');
-                $bqvalue.typeahead('destroy');
-                $bqvalue.typeahead({
-                    source: suggestions.map(String),
-                    showHintOnFocus: true,
-                    items: "all"
-                });
-            },
-            error: function (jqXHR, textStatus) {
-                if (textStatus === 'timeout') {
-                    showErrorGrowl('Server timed out!',
-                        'Try refreshing the browser. If the issue persists, please seek support.');
-                } else {
-                    showErrorGrowl('Something went wrong!', 'If the issue persists, please seek support.');
+        if (source == "bigquery") {
+            $.ajax({
+                url: "/bigquery/?name=first&table=" + table + "&feature=" + feature,
+                type: 'GET',
+                dataType: 'json',
+                timeout: 60000,
+                success: function (response) {
+                    var suggestions = [];
+                    $.each(response.result.rows, function (index, feature) {
+                        suggestions.push(feature[0]["v"]);
+                    });
+                    var $bqvalue = $('#feature-value');
+                    $bqvalue.typeahead('destroy');
+                    $bqvalue.typeahead({
+                        source: suggestions.map(String),
+                        showHintOnFocus: true,
+                        items: "all"
+                    });
+                },
+                error: function (jqXHR, textStatus) {
+                    if (textStatus === 'timeout') {
+                        showErrorGrowl('Server timed out!',
+                            'Try refreshing the browser. If the issue persists, please seek support.');
+                    } else {
+                        showErrorGrowl('Something went wrong!', 'If the issue persists, please seek support.');
+                    }
                 }
-            }
-        });
+            });
+        }
+
     });
 
     $('#constraint-form').submit(function () {
+        var $csource = $('#constraint-source');
         var $ctable = $('#constraint-table');
         var ctype = $('input[name="condition-type"]:checked').val();
         var $cname = $('#constraint-name');
@@ -744,7 +815,8 @@ $(document).ready(function () {
                     "<span style='font-weight: 400'>" + constraint.name + "</span><br>" +
                     "<span style='font-size: 11px; font-weight: 100'>" + constraint.time + "</span>" +
                     "<div style='font-size: 14px; font-weight: 300; margin-top: 10px;'" +
-                    "id='expression-" + constraint.id + "' class='collapse'> Table - " + constraint.table +
+                    "id='expression-" + constraint.id + "' class='collapse'>Table - " + constraint.table +
+                    "<br/> Source - " + constraint.source +
                     "<br/> Expression - " + constraint.expression + "</div></div>";
                 $('#condition-listview').prepend(newdiv);
                 _jcondlistwrapper.nanoScroller({destroy: true}); //for destroy nano
@@ -842,9 +914,33 @@ $(document).ready(function () {
         });
         return false; // prevent default action
     });
+
+    $('#ft-import-form').submit(function () {
+        $('#fusion-table-modal').modal('hide');
+        showOverlay();
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            dataType: "json",
+            success: function (response) {
+                hideOverlay();
+                if (response.result == "success")
+                    window.location.href = "/workspace";
+                else{
+                    showErrorGrowl("Something went wrong!", response.message);
+                }
+            }
+        }).fail(function (response) {
+            hideOverlay();
+            showErrorGrowl("Something went wrong!",
+                "If the issue persists, please seek support.\n" + JSON.stringify(response));
+        });
+        return false;
+    });
 });
 
-function initializeSelectpickers(){
+function initializeSelectpickers() {
     $('.selectpicker').selectpicker('refresh');
 }
 
@@ -877,7 +973,7 @@ function initializeTabChange(target) {
             var $wtables = $('#wtables');
             var $ctable = $("#constraint-table");
             $.ajax({
-                url: "/service/?name=tables",
+                url: "/bigquery/?name=tables",
                 type: 'GET',
                 dataType: 'json',
                 timeout: 60000,
@@ -1116,7 +1212,7 @@ function showComponent(listitem) {
         }, "text");
         _aceeditor.setReadOnly(true);
         $('#component-create-group').hide();
-        if($(listitem).data('readonly')){
+        if ($(listitem).data('readonly')) {
             $('#component-read-group').show();
             $('#component-edit-group').hide();
         } else {
@@ -1219,7 +1315,7 @@ function showCombiner(listitem) {
         }, "text");
         _acecombiner.setReadOnly(true);
         $('#combiner-create-group').hide();
-        if($(listitem).data('readonly')){
+        if ($(listitem).data('readonly')) {
             $('#combiner-read-group').show();
             $('#combiner-edit-group').hide();
         } else {
@@ -1304,7 +1400,7 @@ function showWorkflow(listitem) {
         $('#wviewers-div').addClass('hidden');
     } else {
         $('#workflow-create-group').hide();
-        if($(listitem).data('readonly')){
+        if ($(listitem).data('readonly')) {
             $('#workflow-read-group').show();
             $('#workflow-edit-group').hide();
         } else {

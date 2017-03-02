@@ -115,3 +115,17 @@ def string(obj):
     """
     return str(obj)
 
+
+@register.filter(name='target_names')
+def target_names(targets, separator):
+    return separator.join([target['name'] for target in targets])
+
+
+@register.filter(name='compute_gb')
+def compute_gb(value):
+    return "%.2f" % (float(value)/(1024 * 1024 * 1024))
+
+
+@register.filter(name='compute_mb')
+def compute_mb(value):
+    return "%.2f" % (float(value)/(1024 * 1024))

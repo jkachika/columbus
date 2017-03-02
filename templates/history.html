@@ -41,112 +41,12 @@
     </div>
     <div id="history-div"
          style="height: calc(100% - 72px); margin: 5px; border: 1px solid #cccccc; border-radius: 5px;">
-        <div class="col-xs-2" style="height: 100%; padding: 0px;">
-            <div class="input-group" style="height: 35px; padding: 5px; border-radius: 5px 5px 0px 0px;
-                    border: 1px solid transparent; background-color: #AED581;">
-                <input id='search-input' class="form-control" placeholder="Search History" type="text"/>
-                <span class="input-group-btn">
-                    <button id="search-btn" class="btn btn-default" type="button"
-                            onclick="showInstances();">
-                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                    </button>
-                </span>
-            </div>
-            <div id="history-listwrapper"
-                 style="height: calc(100% - 50px); width: 100%; margin: 0px 0px 5px 0px;" class="nano"
-                 xmlns="http://www.w3.org/1999/html">
-                <div id="history-list" class="nano-content" style="margin-left: 12px;">
-                    <div id="no-instances" class="inactive-listitem {% if histories %}hidden{% endif %}">
-                        No workflow instances to show.
-                    </div>
-                    <div id="not-found" style="display: none" class="inactive-listitem">
-                        No instances found for the search criteria provided.
-                    </div>
-                    {% for history in histories %}
-                        <div id="hid-{{ history.id }}"
-                             data-historyid="{{ history.id }}"
-                             data-start="{{ history.start | date:"D, d M Y - h:i:s A" }}"
-                                {% if history.finish != None %}
-                             data-finish="{{ history.finish | date:"D, d M Y - h:i:s A" }}"
-                             data-duration="{{ history.duration }} seconds"
-                                {% endif %}
-                             data-flowname="{{ history.flow.name }}"
-                             data-source="{{ history.source }}"
-                             data-details="{{ history.details }}"
-                             data-status="{{ history.status }}"
-                                {% if history.status == "Queued" %}
-                             class="listitem pending"
-                                {% elif history.status == "Started" %}
-                             class="listitem started"
-                                {% elif history.status == "In Progress" %}
-                             class="listitem running"
-                                {% elif history.status == "Failed" %}
-                             class="listitem failed"
-                                {% else %}
-                             class="listitem"
-                                {% endif %}
-                             onclick="showFlow(this);">
-                            {% if history.status == "Failed" or history.status == "Finished" %}
-                                <a href="#" class="close" aria-label="close"
-                                   onclick="deleteHistory(event, this, '{{ history.id }}');">&times;</a>
-                            {% endif %}
-                            <span id="hdt-{{ history.id }}"
-                                  style="font-size:14px; font-weight: 400">{{ history.details }}</span><br>
-                            <span style="font-size: 12px; font-weight: 100">{{ history.flow.name }}</span>
-                            <div style="font-size: 13px; font-weight: 300; margin-top: 10px;"
-                                 id="dhid-{{ history.id }}" class="collapse">
-                                <table border="0px">
-                                    <tr>
-                                        <td colspan="2">
-                                            <p>Started on<br/>{{ history.start | date:"D, d M Y - h:i:s A" }}</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2">
-                                            <p>Ended on<br/>
-                                                <span id="hend-{{ history.id }}">{% if history.finish != None %}
-                                                    {{ history.finish | date:"D, d M Y - h:i:s A" }}
-                                                {% else %}Not available{% endif %}</span>
-                                            </p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <p>Duration<br/>
-                                                <span id="hdur-{{ history.id }}">{% if history.duration != 0 %}
-                                                    {{ history.duration }} seconds
-                                                {% else %}--{% endif %}</span>
-                                            </p>
-                                        </td>
-                                        <td>
-                                            <p>Source<br/>
-                                                {{ history.source }}</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2">
-                                            <p>Status<br/>
-                                                <span id="hst-{{ history.id }}">{{ history.status }}</span></p>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    {% endfor %}
-                    {% comment %}To open the same component that was last accessed before submitting the form{% endcomment %}
-                    {% if hopenid != 0 %}
-                        <div id="open-history" data-historyid="{{ hopenid }}" style="display: none"></div>
-                    {% else %}
-                        <div id="open-history" data-historyid="0" style="display: none"></div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div id="history-details" class="col-xs-10 hidden"
+        <div id="history-details" class="col-xs-12"
              style="border-left: 1px solid #ddd; height: calc(100% - 10px); margin: 5px -15px 5px 0px; padding-left: 5px;
              padding-right: 5px;">
             <div>
-                <h3 id="history-name" style="margin:10px;"></h3>
+                <input type="hidden" value="{{ history.id }}" id="history-id"/>
+                <h3 id="history-name" style="margin:10px;">{{ history.flow.name }} #{{ history.id }}</h3>
                 <hr style="margin: 0px;"/>
                 <section class="cd-horizontal-timeline">
                     <div class="timeline">
@@ -214,17 +114,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div id="no-history" class="col-xs-10"
-             style="border-left: 1px solid #ddd; height: calc(100% - 10px); margin: 5px -15px 5px 0px; padding-left: 5px;
-             padding-right: 5px;">
-            <section style="position: absolute; top:0px; bottom: 0px; left: 5px; right: 5px;
-                 border: 1px solid #eeeeee; border-radius: 5px; display: flex; display: -webkit-flex;
-                 background-color: #eeeeee">
-                {% comment %}Donot put anything in this div even a newline, to show placeholder text{% endcomment %}
-                <div style="overflow-x: hidden;" class="placeholder"
-                     data-placeholder="Choose an instance from the list to see it's flow here"></div>
-            </section>
         </div>
     </div>
     <div class="modal fade" id="chart-window" tabindex="-1" role="dialog" aria-labelledby="chart-modal"

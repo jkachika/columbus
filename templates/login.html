@@ -36,6 +36,9 @@
                         {{ error }}
                     </div>
                 {% endif %}
+                {% if next %}
+                    <input type="hidden" name="next" value="{{ next }}"/>
+                {% endif %}
                 <div class="login" style="text-align: left">
                     <div class="form-group">
                         <label for="username">Username:</label>

@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load edf_filters %}
+{% block title %}
+    <title xmlns="http://www.w3.org/1999/html">Dashboard</title>
+{% endblock %}
+{% block headers %}
+    <link rel="stylesheet" href="{% static 'css/nanoscroller.css' %}">
+    <link href="{% static 'css/jquery.growl.css' %}" rel="stylesheet" type="text/css"/>
+    <script src="{% static 'js/jquery.nanoscroller.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/jquery.blockUI.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/jquery.growl.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/overlays.js' %}" type="text/javascript"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script>
+        var workflowsData = [
+            ['Pending', Math.round(parseFloat('{{ statuses.pending|default:0 }}') * 100 / Math.max(parseInt('{{ statuses.all }}'), 1))],
+            ['Queued', Math.round(parseFloat('{{ statuses.queued|default:0 }}') * 100 / Math.max(parseInt('{{ statuses.all }}'), 1))],
+            ['Running', Math.round(parseFloat('{{ statuses.running|default:0 }}') * 100 / Math.max(parseInt('{{ statuses.all }}'), 1))],
+            ['Finished', Math.round(parseFloat('{{ statuses.finished|default:0 }}') * 100 / Math.max(parseInt('{{ statuses.all }}'), 1))],
+            ['Failed', Math.round(parseFloat('{{ statuses.failed|default:0 }}') * 100 / Math.max(parseInt('{{ statuses.all }}'), 1))]
+        ];
+        var usersData = [];
+        {% for user in users %}
+            usersData.push({
+                name: '{{ user.0 }}',
+                y: Math.round(parseFloat('{{ user.1 }}') * 100 / parseInt('{{ user.2 }}')),
+                flows: '{{ user.1 }}'
+            });
+        {% endfor %}
+
+        {% if statuses.pending|default:0 > 0  or statuses.queued|default:0 > 0 or statuses.running|default:0 > 0%}
+            setTimeout(function () {
+                window.location.reload(true);
+            }, 5000);
+        {% endif %}
+    </script>
+    <style>
+        .dashboard-header-label {
+            margin-top: 15px;
+            font-size: medium;
+            font-weight: 300;
+            cursor: pointer;
+        }
+
+        .dashboard-instance-label {
+            margin-top: 5px;
+            margin-bottom: 0px;
+            font-size: medium;
+            font-weight: 300;
+        }
+
+        .dashboard-chart-heading {
+            display: block;
+            padding: 5px;
+            margin: 0px;
+            font-weight: 300;
+            font-size: medium;
+            border-bottom: 2px solid #eee;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            background-color: #eee;
+        }
+
+        .dashboard-header-div {
+            float: left;
+            width: 30%;
+            margin-right: 5%;
+            background-color: #eee;
+            height: 120px;
+            cursor: pointer;
+        }
+
+        span {
+            font-size: medium;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        h1 {
+            margin-top: 0px;
+        }
+
+        hr {
+            margin: 0px;
+            background-color: #eee;
+        }
+
+        hr:last-of-type {
+            display: none;
+        }
+
+        .instance {
+            color: black;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .instance:hover {
+        {% comment %}color: white;
+        background-color: orange;{% endcomment %} background-color: #eee;
+        }
+
+        .direction {
+            transform: rotate(270deg);
+            -ms-transform: rotate(270deg);
+            -moz-transform: rotate(270deg);
+            -webkit-transform: rotate(270deg);
+            -o-transform: rotate(270deg);
+            margin-bottom: 5px;
+        }
+
+        {% comment %} h1 {
+             margin-top: 0px;
+         }
+
+         span {
+             font-size: medium;
+             word-wrap: break-word;
+             white-space: pre-wrap;
+         }{% endcomment %}
+    </style>
+{% endblock %}
+{% block content %}
+    <form action="" method="post" style="height: calc(100% - 70px);">
+        {% csrf_token %}
+        {% if error != None %}
+            <div id="error-holder" style="display: none">{{ error }}</div>
+        {% endif %}
+        <div class="row" style="margin: 5px;">
+            <div class="col-xs-3" style="padding-left: 10px;">
+                <div style="width: 100%; border: 2px solid #eee; border-radius: 10px; margin-top: 15px; text-align: center">
+                    <label class="dashboard-chart-heading">
+                        Workflows Summary
+                    </label>
+                    <div id="workflow-summary" style="height: 240px; margin: 0 auto; width: 100%; padding-right: 10px;
+                    padding-left: 10px;">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6" style="position: absolute; height: 270px; left: 25%; top:84px; text-align: center">
+                <div class="dashboard-header-div" onclick="window.location.href='/dashboard/?q=pending';"
+                     {% if selected == 'pending' %}style="border: 2px solid #FDD835"{% endif %}>
+                    <div style="height: 20px; background-color: #FDD835;"></div>
+                    <label class="dashboard-header-label">Pending</label>
+                    <h1>{{ statuses.pending|default:0 }}</h1>
+                </div>
+                <div class="dashboard-header-div" onclick="window.location.href='/dashboard/?q=queued';"
+                     {% if selected == 'queued' %}style="border: 2px solid #795548"{% endif %}>
+                    <div style="height: 20px; background-color: #795548;"></div>
+                    <label class="dashboard-header-label">Queued</label>
+                    <h1>{{ statuses.queued|default:0 }}</h1>
+                </div>
+                <div class="dashboard-header-div"
+                     onclick="window.location.href='/dashboard/?q=running';"
+                     {% if selected == 'running' %}style="border: 2px solid #00E5FF; margin-right: 0px;"
+                     {% else %}style="margin-right: 0px;"{% endif %}>
+                    <div style="height: 20px; background-color: #00E5FF;"></div>
+                    <label class="dashboard-header-label">Running</label>
+                    <h1>{{ statuses.running|default:0 }}</h1>
+                </div>
+                <div style="float: left; height: 30px; width: 100%"></div>
+                <div class="dashboard-header-div" onclick="window.location.href='/dashboard/?q=finished';"
+                     {% if selected == 'finished' %}style="border: 2px solid #1DE9B6"{% endif %}>
+                    <div style="height: 20px; background-color: #1DE9B6;"></div>
+                    <label class="dashboard-header-label">Finished</label>
+                    <h1>{{ statuses.finished|default:0 }}</h1>
+                </div>
+                <div class="dashboard-header-div" onclick="window.location.href='/dashboard/?q=failed';"
+                     {% if selected == 'failed' %}style="border: 2px solid #E040FB"{% endif %}>
+                    <div style="height: 20px; background-color: #E040FB;"></div>
+                    <label class="dashboard-header-label">Failed</label>
+                    <h1>{{ statuses.failed|default:0 }}</h1>
+                </div>
+                <div class="dashboard-header-div"
+                     onclick="window.location.href='/dashboard/?q=all';"
+                     {% if selected == 'all' %}style="margin-right:0px; border: 2px solid #3949AB"
+                     {% else %}style="margin-right: 0px;"{% endif %}>
+                    <div style="height: 20px; background-color: #3949AB;"></div>
+                    <label class="dashboard-header-label">All</label>
+                    <h1>{{ statuses.all|default:0 }}</h1>
+                </div>
+            </div>
+            <div class="col-xs-3" style=" position: absolute; left: 75%">
+                <div style="width: 100%; border: 2px solid #eee; border-radius: 10px; margin-top: 15px; text-align: center">
+                    <label class="dashboard-chart-heading">
+                        Users Summary
+                    </label>
+                    <div id="user-summary" style="height: 240px; margin: 0 auto; width: 100%; padding-right: 10px;
+                    padding-left: 10px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin: 10px 15px 5px 15px; height: calc(100% - 305px);
+        border: 2px solid #eee; border-radius: 10px;">
+            <div style="width: 100%; background-color: #eee; border-top-left-radius: 5px; border-top-right-radius: 5px;
+             height: 35px; line-height: 35px; padding-left: 10px; padding-right: 10px; text-align: center">
+                <div style="float: left; cursor: pointer;"
+                     {% if start > 1 %}onclick="window.location.href='/dashboard/?q={{ selected }}&from={{ start }}&get=p&r=50';" {% endif %}>
+                    <img src="{% static 'images/up_arrow.png' %}" width="20px" height="20px" ;
+                         class="direction"/>
+                    <span>Previous</span>
+                </div>
+                <div style="float: left; margin-left: 38%">Showing {{ start }} - {{ end }} of {{ total }} results</div>
+                <div style="float: right; cursor: pointer;"
+                     {% if end < total %}onclick="window.location.href='/dashboard/?q={{ selected }}&from={{ end }}&get=n&r=50';" {% endif %}>
+                    <span>Next</span>
+                    <img src="{% static 'images/down_arrow.png' %}" width="20px" height="20px" ;
+                         class="direction"/>
+                </div>
+            </div>
+            <div id="instance-list-wrapper" style="height: calc(100% - 35px); width: 100%;" class="nano"
+                 xmlns="http://www.w3.org/1999/html">
+                <div id="instance-list" class="nano-content">
+                    {% for workflow in workflows %}
+                        <div class="row instance" style="margin: 0px; padding: 15px;"
+                                {% if workflow.status != 'Pending' and workflow.status != 'Queued' %}
+                             onclick="window.location.href='/history/?hopenid={{ workflow.id }}'"
+                                {% endif %}>
+                            <div style="width: 5%; float: left;">
+                                <label class="dashboard-instance-label">
+                                    ID
+                                </label><br>
+                                <span>{{ workflow.id }}</span>
+                            </div>
+                            <div style="width: 14%; float: left;">
+                                <label class="dashboard-instance-label">
+                                    Name
+                                </label><br>
+                                <span>{{ workflow.flow.name }}</span>
+                            </div>
+                            <div style="width: 6%; float: left; margin-left:1%; margin-right: 1% ">
+                                <label class="dashboard-instance-label">
+                                    Priority
+                                </label><br>
+                                <span>{{ workflow.priority }}</span>
+                            </div>
+                            <div style="width: 20%; float: left;">
+                                <label class="dashboard-instance-label">
+                                    Created
+                                </label><br>
+                                <span>{{ workflow.created | date:"D, d M Y - h:i:s A" }}</span>
+                            </div>
+                            <div style="width: 18%; float: left;">
+                                <label class="dashboard-instance-label">
+                                    Started
+                                </label><br>
+                                {% if workflow.start != None %}
+                                    <span>{{ workflow.start | date:"D, d M Y - h:i:s A" }}</span>
+                                {% else %}
+                                    <span>--</span>
+                                {% endif %}
+                            </div>
+                            <div style="width: 18%; float: left;">
+                                <label class="dashboard-instance-label">
+                                    Ended
+                                </label><br>
+                                {% if workflow.finish != None %}
+                                    <span>{{ workflow.finish | date:"D, d M Y - h:i:s A" }}</span>
+                                {% else %}
+                                    <span>--</span>
+                                {% endif %}
+                            </div>
+                            <div style="width: 10%; float: left;">
+                                <label class="dashboard-instance-label">
+                                    Duration
+                                </label><br>
+                                {% if workflow.duration != None %}
+                                    <span>{{ workflow.duration }} sec</span>
+                                {% else %}
+                                    <span>--</span>
+                                {% endif %}
+                            </div>
+                            <div style="width: 7%; float: left;">
+                                <label class="dashboard-instance-label">
+                                    Status
+                                </label><br>
+                                {% if workflow.status == 'Failed' %}
+                                    <div>
+                                        <a href="/dashboard/?q=retry&id={{ workflow.id }}" title="Retry"
+                                           style="text-decoration: none; color: #6f5499;"><span
+                                                style="color: black;">{{ workflow.status }}</span>&nbsp;&nbsp;<span
+                                                class="glyphicon glyphicon-repeat"></span>
+                                        </a><a href="/dashboard/?q=delete&id={{ workflow.id }}" title="Delete"
+                                               style="text-decoration: none; color: #6f5499;">&nbsp;&nbsp;<span
+                                            class="glyphicon glyphicon-trash"></span></a></div>
+                                {% else %}<span>{{ workflow.status }}</span>{% endif %}
+                            </div>
+                            {% if workflow.targets|default:None != None %}
+                                <div style="float: right; width: 95%;">
+                                    {% for target, query in workflow.targets.items %}
+                                        <div class="row" style="margin: 0px; padding: 5px 5px 5px 0px;">
+                                            <div style="float:left; width: 15%;">
+                                                <label class="dashboard-instance-label">Target</label><br/>
+                                                <span>{{ target }}</span>
+                                            </div>
+                                            <div style="float:left; width: 14%; margin-left: 1%">
+                                                <label class="dashboard-instance-label">Source</label><br/>
+                                                {% if query.source == 'drive' %}
+                                                    <span>Google Drive</span>
+                                                {% elif query.source == 'combiner' %}
+                                                    <span>Workflow Combiner</span>
+                                                {% elif query.source == 'galileo' %}
+                                                    <span>Galileo Storage System</span>
+                                                {% elif query.source == 'bigquery' %}
+                                                    <span>Google Bigquery</span>
+                                                {% endif %}
+                                            </div>
+                                            {% if query.source == 'drive' %}
+                                                <div style="float:left; width: 25%;">
+                                                    <label class="dashboard-instance-label">Filename</label><br/>
+                                                    <span>{{ query.desc }}</span>
+                                                </div>
+                                                <div style="float:left; width: 45%;">
+                                                    <label class="dashboard-instance-label">Identifier</label><br/>
+                                                    <span>{{ query.identifier }}</span>
+                                                </div>
+                                            {% elif query.source == 'bigquery' %}
+                                                <div style="float:left; width: 25%;">
+                                                    <label class="dashboard-instance-label">Table</label><br/>
+                                                    <span>{{ query.identifier }}</span>
+                                                </div>
+                                                <div style="float:left; width: 15%;">
+                                                    <label class="dashboard-instance-label">Attribute
+                                                        Filter</label><br/>
+                                                    <span>{{ query.feature }}</span>
+                                                    <span>{{ query.op }}</span>
+                                                    <span>{{ query.value }}</span>
+                                                </div>
+                                                <div style="float:left; width: 20%;">
+                                                    <label class="dashboard-instance-label">Constraint</label><br/>
+                                                    {% if query.constraint != None %}
+                                                        <span>{{ query.constraint }}</span>
+                                                    {% else %}
+                                                        <span>None</span>
+                                                    {% endif %}
+                                                </div>
+                                                <div style="float:left; width: 10%;">
+                                                    <label class="dashboard-instance-label">Records</label><br/>
+                                                    <span>{{ query.desc }}</span>
+                                                </div>
+                                            {% elif query.source == 'combiner' %}
+                                                <div style="float:left; width: 30%;">
+                                                    <label class="dashboard-instance-label">Workflow</label><br/>
+                                                    <span>{{ query.identifier }}</span>
+                                                </div>
+                                                <div style="float:left; width: 40%;">
+                                                    <label class="dashboard-instance-label">Selection
+                                                        Criteria</label><br/>
+                                                    <span>{{ query.desc }}</span>
+                                                </div>
+                                            {% elif query.source == 'galileo' %}
+                                                <div style="float:left; width: 15%;">
+                                                    <label class="dashboard-instance-label">Filesystem</label><br/>
+                                                    <span>{{ query.identifier }}</span>
+                                                </div>
+                                                <div style="float:left; width: 15%;">
+                                                    <label class="dashboard-instance-label">Region</label><br/>
+                                                    {% if query.polygon != None %}
+                                                        <span>{{ query.polygon }}</span>
+                                                    {% else %}
+                                                        <span>None</span>
+                                                    {% endif %}
+                                                </div>
+                                                <div style="float:left; width: 10%;">
+                                                    <label class="dashboard-instance-label">Time</label><br/>
+                                                    <span>{{ query.temporal }}</span>
+                                                </div>
+                                                <div style="float:left; width: 20%;">
+                                                    <label class="dashboard-instance-label">Constraint</label><br/>
+                                                    {% if query.where != None %}
+                                                        <span>{{ query.where }}</span>
+                                                    {% else %}
+                                                        <span>None</span>
+                                                    {% endif %}
+                                                </div>
+                                                <div style="float:left; width: 10%;">
+                                                    <label class="dashboard-instance-label">Impact</label><br/>
+                                                    <span>{{ query.desc }}</span>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <hr>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+{% block bodyscripts %}
+    <script src="{% static  'js/columbus-dashboard.js' %}"></script>
+{% endblock %}

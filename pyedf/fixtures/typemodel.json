@@ -1,0 +1,42 @@
+[
+  {
+    "model": "pyedf.typemodel",
+    "pk": 1,
+    "fields": {
+      "name": "Feature",
+      "identifier": "ft"
+    }
+  },
+  {
+    "model": "pyedf.typemodel",
+    "pk": 2,
+    "fields": {
+      "name": "Feature Collection",
+      "identifier": "ftc"
+    }
+  },
+  {
+    "model": "pyedf.typemodel",
+    "pk": 3,
+    "fields": {
+      "name": "Multi Collection",
+      "identifier": "mftc"
+    }
+  },
+  {
+    "model": "pyedf.typemodel",
+    "pk": 4,
+    "fields": {
+      "name": "CSV List",
+      "identifier": "csv"
+    }
+  },
+  {
+    "model": "pyedf.typemodel",
+    "pk": 5,
+    "fields": {
+      "name": "Blob",
+      "identifier": "blob"
+    }
+  }
+]

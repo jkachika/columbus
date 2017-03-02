@@ -5,91 +5,191 @@
 {% endblock %}
 {% block headers %}
     <script src="{% static 'js/bootstrap-validator.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/nanoscroller.css' %}">
+    <script src="{% static 'js/jquery.nanoscroller.min.js' %}" type="text/javascript"></script>
+    <style>
+        label {
+            padding: 0px;
+            font-size: small;
+            font-weight: 300;
+        }
+    </style>
 {% endblock headers %}
 {% block content %}
-    <form role="form" data-toggle="validator" method="post" action="/updateac">
+    <form role="form" data-toggle="validator" method="post" action="/updateac" style="height: calc(100% - 60px);">
         {% csrf_token %}
-        <div class="col-md-12">
-            <br><br>
-            <div class="row">
-                <div class="col-md-3"></div>
-                <div class="col-md-6">
-                    {% if error != None %}
-                        <div style="align-content: center;" class="alert alert-danger fade in">
-                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                            {{ error }}
+        <div id="account-details-wrapper" class="col-md-12 nano" style="height: 100%">
+            <div id="account-details" class="nano-content"
+                 style="padding-left: 15px; padding-right: 20px; margin-top: 15px; margin-bottom: 15px;">
+                <div class="row">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-6">
+                        {% if error != None %}
+                            <div style="align-content: center;" class="alert alert-danger fade in">
+                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                                {{ error }}
+                            </div>
+                        {% endif %}
+                        {% if info != None %}
+                            <div style="align-content: center;" class="alert alert-info fade in">
+                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                                {{ info }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3"></div>
+                </div>
+                <div class="row">
+                    <h4 style="margin-left: 15px;">Personal Information</h4>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="fname">First Name<span
+                                    style='color: red'>*</span></label>
+                            <input type="fname" class="form-control" id="fname" name="fname" required
+                                   value="{{ user.first_name }}"/>
+                            <span class="help-block with-errors"></span>
                         </div>
-                    {% endif %}
-                    {% if info != None %}
-                        <div style="align-content: center;" class="alert alert-info fade in">
-                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                            {{ info }}
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="lname">Last Name<span
+                                    style='color: red'>*</span></label>
+                            <input type="lname" class="form-control" id="lname" required name="lname"
+                                   value="{{ user.last_name }}">
+                            <span class="help-block with-errors"></span>
                         </div>
-                    {% endif %}
-                </div>
-                <div class="col-md-3"></div>
-            </div>
-            <div class="row">
-                <div class="col-md-2"></div>
-                <div class="col-md-4">
-                    <h4>User Details</h4>
-                    <div class="form-group">
-                        <label class="sub-heading" style="padding-bottom: 0px" for="fname">First Name<span style='color: red'>*</span></label>
-                        <input type="fname" class="form-control" id="fname" name="fname" required
-                               value="{{ user.first_name }}"/>
-                        <span class="help-block with-errors"></span>
                     </div>
-                    <div class="form-group">
-                        <label class="sub-heading" style="padding-bottom: 0px" for="lname">Last Name<span style='color: red'>*</span></label>
-                        <input type="lname" class="form-control" id="lname" required name="lname"
-                               value="{{ user.last_name }}">
-                        <span class="help-block with-errors"></span>
-                    </div>
-                    <div class="form-group has-feedback">
-                        <label class="sub-heading" style="padding-bottom: 0px" for="eaddress">Email Address<span style='color: red'>*</span></label>
-                        <input type="email" class="form-control" id="eaddress" data-minlength="3" name="eaddress"
-                               value="{{ user.email }}" data-error="Bruh, that email address is invalid"
-                               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$">
-                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                        <span class="help-block with-errors"></span>
-                        <input type="password" style="display:none">
-                    </div>
-                    <br/>
-                </div>
-                <div class="col-md-4">
-                    <h4>Change Password</h4>
-                    <div class="form-group">
-                        <label class="sub-heading" style="padding-bottom: 0px" for="pwd">New Password<span style='color: red'>*</span></label>
-                        <input type="password" placeholder="6 - 15 characters" class="form-control" maxlength="15"
-                               data-minlength="6" id="pwd" name="pwd" autocomplete="off" required>
-                        <div class="help-block with-errors"></div>
-                    </div>
-                    <div class="form-group">
-                        <label class="sub-heading" style="padding-bottom: 0px" for="rpwd">Retype Password<span style='color: red'>*</span></label>
-                        <input type="password" placeholder="6 - 15 characters" class="form-control" maxlength="15"
-                               data-minlength="6" id="rpwd" name="rpwd" data-match="#pwd"
-                               data-match-error="Whoops, these don't match" required>
-                        <div class="help-block with-errors"></div>
-                    </div>
-                    <div class="form-group">
-                        <label class="sub-heading" style="padding-bottom: 0px" for="lastlogin">Last Login</label>
-                        <input type="text" class="form-control" id="lastlogin" readonly
-                               value="{{ user.last_login }}">
-                    </div>
-                    <br/>
-                </div>
-                <div class="col-md-2"></div>
-            </div>
-            <div class="row">
-                <div class="col-md-5"></div>
-                <div class="col-md-2">
-                    <div style="text-align: center; padding-top: 15px">
-                        <button type="submit" class="btn btn-default">Update</button>
-                        <button type="reset" class="btn btn-default">Reset</button>
+                    <div class="col-md-4">
+                        <div class="form-group has-feedback">
+                            <label for="eaddress">Email Address<span
+                                    style='color: red'>*</span></label>
+                            <input type="email" class="form-control" id="eaddress" data-minlength="3" name="eaddress"
+                                   value="{{ user.email }}" data-error="Bruh, that email address is invalid"
+                                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$">
+                            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                            <span class="help-block with-errors"></span>
+                            <input type="password" style="display:none">
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-5"></div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="pwd">New Password<span
+                                    style='color: red'>*</span></label>
+                            <input type="password" placeholder="6 - 15 characters" class="form-control" maxlength="15"
+                                   data-minlength="6" id="pwd" name="pwd" autocomplete="off" required>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="rpwd">Retype Password<span
+                                    style='color: red'>*</span></label>
+                            <input type="password" placeholder="6 - 15 characters" class="form-control" maxlength="15"
+                                   data-minlength="6" id="rpwd" name="rpwd" data-match="#pwd"
+                                   data-match-error="Whoops, these don't match" required>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="lastlogin">Last Login</label>
+                            <input type="text" class="form-control" id="lastlogin" readonly
+                                   value="{{ user.last_login }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <h4 style="margin-left: 15px;">Account Details</h4>
+                    <div class="col-md-6">
+                        <label for="drive-key">Google Drive and Fusion Tables</label>
+                        <div class="form-group">
+                            {% if drive != None %}
+                                <textarea class="form-control" name="drive-key" id="drive-key" rows="10"
+                                          placeholder="Paste the service account json here">{{ drive.credentials }}</textarea>
+                            {% else %}
+                                <textarea class="form-control" name="drive-key" id="drive-key" rows="10"
+                                          placeholder="Paste the service account json here"></textarea>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="bigquery-key">Google Bigquery</label>
+                        <div class="form-group">
+                            {% if bigquery != None %}
+                                <textarea class="form-control" name="bigquery-key" id="bigquery-key" rows="10"
+                                          placeholder="Paste the service account json here">{{ bigquery.credentials }}</textarea>
+                            {% else %}
+                                <textarea class="form-control" name="bigquery-key" id="bigquery-key" rows="10"
+                                          placeholder="Paste the service account json here"></textarea>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="ee-key">Google Earth Engine</label>
+                        <div class="form-group">
+                            {% if earthengine != None %}
+                                <input class="form-control" type="text" id="ee-bucket" name="ee-bucket"
+                                       placeholder="Staging Bucket for Earth Engine" value="{{ earthengine.bucket }}"/><br>
+                                <textarea class="form-control" name="ee-key" id="ee-key" rows="10"
+                                          placeholder="Paste the service account json here">{{ earthengine.credentials }}</textarea>
+                            {% else %}
+                                <input class="form-control" type="text" id="ee-bucket" name="ee-bucket"
+                                       placeholder="Staging Bucket for Earth Engine"/><br>
+                                <textarea class="form-control" name="ee-key" id="ee-key" rows="10"
+                                          placeholder="Paste the service account json here"></textarea>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="gcs-key">Google Cloud Storage</label>
+                        <div class="form-group">
+                            {% if storage != None %}
+                                <input class="form-control" type="text" id="gcs-bucket" name="gcs-bucket"
+                                       placeholder="Bucket Name having Read Permissions" value="{{ storage.bucket }}"/>
+                                <br>
+                                <textarea class="form-control" name="gcs-key" id="gcs-key" rows="10"
+                                          placeholder="Paste the service account json here">{{ storage.credentials }}</textarea>
+                            {% else %}
+                                <input class="form-control" type="text" id="gcs-bucket" name="gcs-bucket"
+                                       placeholder="Bucket Name having Read Permissions"/>
+                                <br>
+                                <textarea class="form-control" name="gcs-key" id="gcs-key" rows="10"
+                                          placeholder="Paste the service account json here"></textarea>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-5"></div>
+                    <div class="col-md-2">
+                        <div style="text-align: center; padding-top: 15px">
+                            <button type="submit" class="btn btn-default">Update</button>
+                            <button type="reset" class="btn btn-default">Reset</button>
+                        </div>
+                    </div>
+                    <div class="col-md-5"></div>
+                </div>
             </div>
         </div>
     </form>
+{% endblock %}
+{% block bodyscripts %}
+    <script>
+        var $accountWrapper;
+        $(document).ready(function () {
+            $accountWrapper = $('#account-details-wrapper');
+            $accountWrapper.nanoScroller({destroy: true}); //for destroy nano
+            $accountWrapper.nanoScroller();
+            $(window).resize(function () {
+                $accountWrapper.nanoScroller({destroy: true}); //for destroy nano
+                $accountWrapper.nanoScroller();
+            });
+        });
+    </script>
 {% endblock %}

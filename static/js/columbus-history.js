@@ -6,7 +6,7 @@ var fusionLayers = [];
 var mapInitialized;
 var _lastHistory;
 var _hlistWrapper;
-var $searchInput;
+//var $searchInput;
 var rtimestamp;
 var $eol;
 var _isAbort;
@@ -53,15 +53,15 @@ $(document).ready(function () {
         }
     });
 
-    _hlistWrapper = $('#history-listwrapper');
-    $searchInput = $('#search-input');
+    //_hlistWrapper = $('#history-listwrapper');
+    //$searchInput = $('#search-input');
     $eol = $('#events-ol');
     $historyDetails = $('#history-details');
-    $noHistory = $('#no-history');
-    resizeWrappers();
-    $(window).resize(function () {
-        resizeWrappers();
-    });
+    /*$noHistory = $('#no-history');
+     resizeWrappers();
+     $(window).resize(function () {
+     resizeWrappers();
+     });*/
     $('body').on('click', function (e) {
         $('a[data-toggle=popover]').each(function () {
             // hide any open popovers when the anywhere else in the body is clicked
@@ -104,14 +104,14 @@ $(document).ready(function () {
         });
     });
 
-    var hid = $('#open-history').data('historyid');
-    if (hid != "0")
-        $("#hid-" + hid).click();
+    /*var hid = $('#open-history').data('historyid');
+     if (hid != "0")
+     $("#hid-" + hid).click();
 
-    $('div.listitem').each(function () {
-        if ($(this).data('status') != "Finished" && $(this).data('status') != "Failed")
-            updateHistory($(this).data("historyid"));
-    });
+     $('div.listitem').each(function () {
+     if ($(this).data('status') != "Finished" && $(this).data('status') != "Failed")
+     updateHistory($(this).data("historyid"));
+     });*/
 
     $('#addY').click(function () {
         if (yaxes < 4) {
@@ -149,59 +149,61 @@ $(document).ready(function () {
             }
         });
     });
+
+    showFlow($('#history-id').val());
 });
 
-function resizeWrappers() {
-    _hlistWrapper.nanoScroller({destroy: true}); //for destroy nano
-    _hlistWrapper.nanoScroller();
-}
+/*function resizeWrappers() {
+ _hlistWrapper.nanoScroller({destroy: true}); //for destroy nano
+ _hlistWrapper.nanoScroller();
+ }*/
 
-function showInstances() {
-    var searchText = $searchInput.val().trim();
-    var search = (searchText.length > 0) ? true : false;
-    var found = false;
-    $('div.listitem').each(function () {
-        if (searchText.length > 0) {
-            if ($(this).text().toLowerCase().indexOf(searchText.toLowerCase()) != -1) {
-                $(this).show();
-                found = true;
-            } else {
-                $(this).hide();
-            }
-        } else {
-            $(this).show();
-        }
-    });
+/*function showInstances() {
+ var searchText = $searchInput.val().trim();
+ var search = (searchText.length > 0) ? true : false;
+ var found = false;
+ $('div.listitem').each(function () {
+ if (searchText.length > 0) {
+ if ($(this).text().toLowerCase().indexOf(searchText.toLowerCase()) != -1) {
+ $(this).show();
+ found = true;
+ } else {
+ $(this).hide();
+ }
+ } else {
+ $(this).show();
+ }
+ });
 
-    if (search && !found)
-        $('#not-found').show();
-    else
-        $('#not-found').hide();
+ if (search && !found)
+ $('#not-found').show();
+ else
+ $('#not-found').hide();
 
-}
+ }*/
 
-function showFlow(listitem) {
-    if ($(listitem).data('executing')) {
-        $(listitem).css('background-color', '#F9A825');
-        $(listitem).css('color', '#fff');
-        $("#dhid-" + $(_lastHistory).data("historyid")).collapse('toggle');
-        return;
-    }
+function showFlow(hid) {
+    /*if ($(listitem).data('executing')) {
+     $(listitem).css('background-color', '#F9A825');
+     $(listitem).css('color', '#fff');
+     $("#dhid-" + $(_lastHistory).data("historyid")).collapse('toggle');
+     return;
+     }
 
-    $noHistory.addClass('hidden');
+     $noHistory.addClass('hidden');*/
     $historyDetails.removeClass('hidden');
 
-    if (_lastHistory != undefined) {
-        $(_lastHistory).css('background-color', '');
-        $(_lastHistory).css('color', '');
-        $(_lastHistory).removeData('executing');
-    }
-    _lastHistory = listitem;
-    $(listitem).css('background-color', '#F9A825');
-    $(listitem).css('color', '#fff');
-    $(listitem).data('executing', true);
-    resizeWrappers();
-    $('#history-name').text($(listitem).data('flowname'));
+    /*if (_lastHistory != undefined) {
+     $(_lastHistory).css('background-color', '');
+     $(_lastHistory).css('color', '');
+     $(_lastHistory).removeData('executing');
+     }
+     _lastHistory = listitem;
+     $(listitem).css('background-color', '#F9A825');
+     $(listitem).css('color', '#fff');
+     $(listitem).data('executing', true);
+     resizeWrappers();
+     $('#history-name').text($(listitem).data('flowname'));*/
     if (_lastAjax != undefined) {
         _isAbort = true;
         _lastAjax.abort();
@@ -209,7 +211,6 @@ function showFlow(listitem) {
     if (_lastTimer != undefined)
         window.clearTimeout(_lastTimer);
     $eol.html('');
-    var hid = $(listitem).data('historyid');
     var e = $.Event('keyup');
     e.which = 37; // left key press to reset the timeline back to the first event before making a call for re-rendering.
     $(document).trigger(e);
@@ -219,126 +220,126 @@ function showFlow(listitem) {
 }
 
 
-function findNewHistory(hid) {
-    $.ajax({
-        type: "GET",
-        url: "/hasync/?what=find&id=" + hid,
-        dataType: 'json',
-        success: function (response) {
-            if (response.data == "error") {
-                showErrorGrowl("Something went wrong!", "Failed to find new workflow instances, please try again by refreshing the page.");
-                return;
-            }
-            if (response.data == "none")
-                return;
+/*function findNewHistory(hid) {
+ $.ajax({
+ type: "GET",
+ url: "/hasync/?what=find&id=" + hid,
+ dataType: 'json',
+ success: function (response) {
+ if (response.data == "error") {
+ showErrorGrowl("Something went wrong!", "Failed to find new workflow instances, please try again by refreshing the page.");
+ return;
+ }
+ if (response.data == "none")
+ return;
 
-            var history = response.data;
-            var clazz = "listitem";
-            if (history.status == "Queued")
-                clazz = "listitem pending";
-            else if (history.status == "Started")
-                clazz = "listitem started";
-            else if (history.status == "In Progress")
-                clazz = "listitem running";
-            else if (history.status == "Failed")
-                clazz = "listitem failed";
-            else
-                clazz = "listitem finished";
+ var history = response.data;
+ var clazz = "listitem";
+ if (history.status == "Queued")
+ clazz = "listitem pending";
+ else if (history.status == "Started")
+ clazz = "listitem started";
+ else if (history.status == "In Progress")
+ clazz = "listitem running";
+ else if (history.status == "Failed")
+ clazz = "listitem failed";
+ else
+ clazz = "listitem finished";
 
-            var html = '<div id="hid-' + history.id + '"' +
-                'data-historyid="' + history.id + '"' +
-                'data-start="' + history.start + '"' +
-                'data-finish="' + history.end + '"' +
-                'data-duration="' + history.duration + '"' +
-                'data-flowname="' + history.name + '"' +
-                'data-source="' + history.source + '"' +
-                'data-details="' + history.details + '"' +
-                'data-status="' + history.status + '"' +
-                'class="' + clazz + '"' +
-                'onclick="showFlow(this);">';
+ var html = '<div id="hid-' + history.id + '"' +
+ 'data-historyid="' + history.id + '"' +
+ 'data-start="' + history.start + '"' +
+ 'data-finish="' + history.end + '"' +
+ 'data-duration="' + history.duration + '"' +
+ 'data-flowname="' + history.name + '"' +
+ 'data-source="' + history.source + '"' +
+ 'data-details="' + history.details + '"' +
+ 'data-status="' + history.status + '"' +
+ 'class="' + clazz + '"' +
+ 'onclick="showFlow(this);">';
 
-            if (history.status == "Failed" || history.status == "Finished") {
-                html = html + '<a href="#" class="close" aria-label="close"' +
-                    'onclick="deleteHistory(event, this, ' + history.id + ');">&times;</a>';
-            }
+ if (history.status == "Failed" || history.status == "Finished") {
+ html = html + '<a href="#" class="close" aria-label="close"' +
+ 'onclick="deleteHistory(event, this, ' + history.id + ');">&times;</a>';
+ }
 
-            html = html + '<span id="hdt-' + history.id + '"' +
-                'style="font-size:14px; font-weight: 400">' + history.details + '</span><br>' +
-                '<span style="font-size: 12px; font-weight: 100">' + history.name + '</span>' +
-                '<div style="font-size: 13px; font-weight: 300; margin-top: 10px;"' +
-                'id="dhid-' + history.id + '" class="collapse">' +
-                '<table border="0px"><tr><td colspan="2">' +
-                '<p>Started on<br/>' + history.start + '</p></td></tr><tr><td colspan="2">' +
-                '<p>Ended on<br/><span id="hend-' + history.id + '"></span></p></td></tr><tr><td>' +
-                '<p>Duration<br/><span id="hdur-' + history.id + '"></span></p></td><td>' +
-                '<p>Source<br/>' + history.source + '</p></td></tr><tr><td colspan="2">' +
-                '<p>Status<br/><span id="hst-' + history.id + '">' + history.status + '</span></p></td></tr></table>' +
-                '</div></div>';
+ html = html + '<span id="hdt-' + history.id + '"' +
+ 'style="font-size:14px; font-weight: 400">' + history.details + '</span><br>' +
+ '<span style="font-size: 12px; font-weight: 100">' + history.name + '</span>' +
+ '<div style="font-size: 13px; font-weight: 300; margin-top: 10px;"' +
+ 'id="dhid-' + history.id + '" class="collapse">' +
+ '<table border="0px"><tr><td colspan="2">' +
+ '<p>Started on<br/>' + history.start + '</p></td></tr><tr><td colspan="2">' +
+ '<p>Ended on<br/><span id="hend-' + history.id + '"></span></p></td></tr><tr><td>' +
+ '<p>Duration<br/><span id="hdur-' + history.id + '"></span></p></td><td>' +
+ '<p>Source<br/>' + history.source + '</p></td></tr><tr><td colspan="2">' +
+ '<p>Status<br/><span id="hst-' + history.id + '">' + history.status + '</span></p></td></tr></table>' +
+ '</div></div>';
 
-            $('#history-list').prepend(html);
-            resizeWrappers();
-            updateHistory(history.id);
-        },
-        error: function () {
-            //ignore
-        }
-    });
-}
+ $('#history-list').prepend(html);
+ resizeWrappers();
+ updateHistory(history.id);
+ },
+ error: function () {
+ //ignore
+ }
+ });
+ }
 
 
-function updateHistory(hid) {
-    $.ajax({
-        type: "GET",
-        url: "/hasync/?what=status&id=" + hid,
-        dataType: 'json',
-        success: function (response) {
-            var history = response.data;
-            var $hid = $('#hid-' + history.id);
-            $hid.data('status', history.status);
-            $hid.find('#hdt-' + history.id).text(history.details);
-            $hid.find('#hst-' + history.id).text(history.status);
-            $hid.find('#hend-' + history.id).text(history.end);
-            $hid.find('#hdur-' + history.id).text(history.duration);
-            $hid.css('background-color', '');
-            $hid.css('color', '');
-            $hid.removeAttr('class');
-            if (history.status == 'Queued') {
-                $hid.addClass('listitem pending');
-                window.setTimeout(function () {
-                    updateHistory(history.id);
-                }, 2000);
-            } else if (history.status == 'Started') {
-                $hid.addClass('listitem started');
-                window.setTimeout(function () {
-                    updateHistory(history.id);
-                }, 2000);
-            } else if (history.status == 'In Progress') {
-                $hid.addClass('listitem running');
-                window.setTimeout(function () {
-                    updateHistory(history.id);
-                }, 5000);
-            } else if (history.status == 'Failed') {
-                $hid.addClass('listitem failed');
-                if (!$hid.find('a.close').length) {
-                    $hid.prepend('<a href="#" class="close" aria-label="close" onclick="deleteHistory(event, this, ' +
-                        history.id + ');">&times;</a>');
-                }
-                window.setTimeout(function () {
-                    findNewHistory(history.id);
-                }, 5000);
-            } else {
-                $hid.addClass('listitem finished');
-                if (!$hid.find('a.close').length) {
-                    $hid.prepend('<a href="#" class="close" aria-label="close" onclick="deleteHistory(event, this, ' +
-                        history.id + ');">&times;</a>');
-                }
-                window.setTimeout(function () {
-                    findNewHistory(history.id);
-                }, 5000);
-            }
-        }
-    });
-}
+ function updateHistory(hid) {
+ $.ajax({
+ type: "GET",
+ url: "/hasync/?what=status&id=" + hid,
+ dataType: 'json',
+ success: function (response) {
+ var history = response.data;
+ var $hid = $('#hid-' + history.id);
+ $hid.data('status', history.status);
+ $hid.find('#hdt-' + history.id).text(history.details);
+ $hid.find('#hst-' + history.id).text(history.status);
+ $hid.find('#hend-' + history.id).text(history.end);
+ $hid.find('#hdur-' + history.id).text(history.duration);
+ $hid.css('background-color', '');
+ $hid.css('color', '');
+ $hid.removeAttr('class');
+ if (history.status == 'Queued') {
+ $hid.addClass('listitem pending');
+ window.setTimeout(function () {
+ updateHistory(history.id);
+ }, 2000);
+ } else if (history.status == 'Started') {
+ $hid.addClass('listitem started');
+ window.setTimeout(function () {
+ updateHistory(history.id);
+ }, 2000);
+ } else if (history.status == 'In Progress') {
+ $hid.addClass('listitem running');
+ window.setTimeout(function () {
+ updateHistory(history.id);
+ }, 5000);
+ } else if (history.status == 'Failed') {
+ $hid.addClass('listitem failed');
+ if (!$hid.find('a.close').length) {
+ $hid.prepend('<a href="#" class="close" aria-label="close" onclick="deleteHistory(event, this, ' +
+ history.id + ');">&times;</a>');
+ }
+ window.setTimeout(function () {
+ findNewHistory(history.id);
+ }, 5000);
+ } else {
+ $hid.addClass('listitem finished');
+ if (!$hid.find('a.close').length) {
+ $hid.prepend('<a href="#" class="close" aria-label="close" onclick="deleteHistory(event, this, ' +
+ history.id + ');">&times;</a>');
+ }
+ window.setTimeout(function () {
+ findNewHistory(history.id);
+ }, 5000);
+ }
+ }
+ });
+ }*/
 
 //prevts - previous timestamp
 function peekstatus($eol, prevts, count, fsid, flowid) {
@@ -427,16 +428,13 @@ function peekstatus($eol, prevts, count, fsid, flowid) {
                 if (data.status == 'success')
                     _lastTimer = window.setTimeout(function () {
                         peekstatus($eol, rtimestamp, 1, fsid, flowid);
-                    }, 500);
+                    }, 1000);
+                if (data.status == 'wait')
+                    _lastTimer = window.setTimeout(function () {
+                        peekstatus($eol, rtimestamp, 1, fsid, flowid);
+                    }, 10000);
             } else if (data.status == 'error') {
                 showErrorGrowl("Something went wrong!", data.message);
-            } else if (data.status == 'timeout') {
-                _lastTimer = window.setTimeout(function () {
-                    peekstatus($eol, rtimestamp, 1, fsid, flowid);
-                }, 5000);
-                showErrorGrowl("Server Timed Out!",
-                    "It is taking longer than normal. " +
-                    "Will request again in 5 seconds, please do not refresh the browser");
             }
         },
         error: function () {
@@ -883,40 +881,40 @@ function visualizeFTC(ftkey) {
      });*/
 }
 
-function deleteHistory(e, anchor, hid) {
-    showOverlay();
-    e.stopPropagation();
-    if (!$(anchor).data("executing")) {
-        $(anchor).data("executing", true);
-        $.ajax({
-            type: "GET",
-            url: "/delete/?what=history&id=" + hid,
-            dataType: 'json',
-            success: function (response) {
-                if (response.result != "success") {
-                    showErrorGrowl("Something went wrong!", "Failed to delete the instance. If the issue persists, please seek support");
-                } else {
-                    //deleting the div in advance to imitate that it did not take time.
-                    var $hid = $("div#hid-" + hid);
-                    if ($hid.data('executing')) {
-                        $noHistory.removeClass('hidden');
-                        $historyDetails.addClass('hidden');
-                    }
-                    $hid.remove();
-                    if ($('div.listitem').length == 0)
-                        $('#no-instances').removeClass('hidden');
-                    resizeWrappers();
-                }
-                hideOverlay();
-            },
-            error: function () {
-                showErrorGrowl("Something went wrong!", "Failed to delete the instance. " +
-                    "If the issue persists, please seek support.");
-                hideOverlay();
-            }
-        });
-    }
-}
+/*function deleteHistory(e, anchor, hid) {
+ showOverlay();
+ e.stopPropagation();
+ if (!$(anchor).data("executing")) {
+ $(anchor).data("executing", true);
+ $.ajax({
+ type: "GET",
+ url: "/delete/?what=history&id=" + hid,
+ dataType: 'json',
+ success: function (response) {
+ if (response.result != "success") {
+ showErrorGrowl("Something went wrong!", "Failed to delete the instance. If the issue persists, please seek support");
+ } else {
+ //deleting the div in advance to imitate that it did not take time.
+ var $hid = $("div#hid-" + hid);
+ if ($hid.data('executing')) {
+ $noHistory.removeClass('hidden');
+ $historyDetails.addClass('hidden');
+ }
+ $hid.remove();
+ if ($('div.listitem').length == 0)
+ $('#no-instances').removeClass('hidden');
+ resizeWrappers();
+ }
+ hideOverlay();
+ },
+ error: function () {
+ showErrorGrowl("Something went wrong!", "Failed to delete the instance. " +
+ "If the issue persists, please seek support.");
+ hideOverlay();
+ }
+ });
+ }
+ }*/
 
 function buildChartXAxis() {
     var xaxisVal = $('#xaxis').val();
@@ -1029,7 +1027,7 @@ function displayChart() {
             return false;
         }
     }
-    if(ftcindex == undefined || ftcindex == '')
+    if (ftcindex == undefined || ftcindex == '')
         ftcindex = 0;
 
     var xaxis = $('#xaxis').val();
@@ -1062,10 +1060,10 @@ function displayChart() {
         url: "/peekdata/?flowid=" + flowid + "&fsid=" + fsid + "&what=chart&ftcindex=" + ftcindex + "&fields=" + fields,
         dataType: 'json',
         success: function (data) {
-            if(data.result.length == 0)
+            if (data.result.length == 0)
                 $('#chart-container').html('<p style="display: table-cell; text-align: center; ' +
                     'vertical-align: middle;">No data found for the chosen criteria</p>');
-            else{
+            else {
                 var chartSeries = buildChartSeries(y_axes, data.result);
                 __showChart(chartTitle, chartType, chartX, chartY, chartSeries);
                 $showButton.removeAttr('disabled');
@@ -1082,7 +1080,7 @@ function buildChart(chartLink) {
     $('#chart-window').modal('show');
     $('#chart-modal').text(name);
     $('#chart-container').html('<p style="display: table-cell; text-align: center; ' +
-                    'vertical-align: middle;">Select axes and click on <b>Show Chart</b> button</p>');
+        'vertical-align: middle;">Select axes and click on <b>Show Chart</b> button</p>');
     $('#chart-loading').addClass('hidden');
     yaxes = 1;
     for (var i = 2; i <= 4; i++)

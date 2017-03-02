@@ -300,20 +300,20 @@ function doOverlay(feature) {
 function getLocalities() {
     $('#spinner').removeClass('hidden');
     //return $.ajax({url: SERVICE_HOST + "/locality?names", type: 'GET', dataType: 'json'});
-    return $.ajax({url: "/service/?name=localities", type: 'GET', dataType: 'json'});
+    return $.ajax({url: "/bigquery/?name=localities", type: 'GET', dataType: 'json'});
 }
 
 
 function getFeatures() {
     $('#spinner').removeClass('hidden');
     //return $.ajax({url: SERVICE_HOST + "/features", type:'GET', dataType: 'json'});
-    return $.ajax({url: "/service/?name=features", type:'GET', dataType: 'json'});
+    return $.ajax({url: "/bigquery/?name=features", type:'GET', dataType: 'json'});
 }
 
 function getLocality(locality) {
     $('#spinner').removeClass('hidden');
     //$.get(SERVICE_HOST + "/locality?featureset&locality=" + locality, function (response, status) {
-    $.get("/service/?name=locality&city=" + locality, function (response, status) {
+    $.get("/bigquery/?name=locality&city=" + locality, function (response, status) {
         map.setZoom(4);
         var heatMap = [];
         $.each(response, function (index, feature) {

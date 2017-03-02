@@ -3,14 +3,14 @@ Django settings for columbus project on production server.
 """
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import mimetypes
 import socket
+import mimetypes
 
 mimetypes.add_type("image/svg+xml", ".svg", True)
 mimetypes.add_type("image/svg+xml", ".svgz", True)
 
 # Webservice for Galileo. Needed only when columbus is integrated to work with galileo.
-WEBSERVICE_HOST = 'http://www.columbus.cs.colostate.edu/galileo-web-service'
+WEBSERVICE_HOST = 'http://tomcat.columbus-sandbox.tk/galileo-web-service'
 SUPERVISOR_PORT = 56789
 CONTAINER_SIZE_MB = 256  # 256 MB containers for any target
 USER_DIRPATH = '/mnt/ldsk/'
@@ -40,6 +40,7 @@ WORKERS = [socket.getfqdn()]
 WORKER_VIRTUAL_ENV = None
 WORKER_SSH_PORT = 22
 WORKER_SSH_USER = 'johnsoncharles26'
+# used for password based login or as passphrase for private key file
 WORKER_SSH_PASSWORD = None
 # fully qualified path for the priavte key file. if not specified ~/.ssh/id_rsa is tried
 WORKER_SSH_PRIVATE_KEY = None
@@ -151,8 +152,8 @@ USE_TZ = True
 
 # Application settings
 
-LOGIN_URL = '/login'
-LOGOUT_URL = '/login'
+LOGIN_URL = '/login/'
+LOGOUT_URL = '/login/'
 # LOGIN_REDIRECT_URL = '/home'
 
 ADMINS = [

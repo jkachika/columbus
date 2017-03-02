@@ -23,7 +23,7 @@ admin.autodiscover()
 
 urlpatterns = [
     url(r'^$', NLHome.as_view()),
-    url(r'^login$', Login.as_view()),
+    url(r'^login/$', Login.as_view()),
     url(r'^logout/$', logout, {'next_page': '/login'}),
     url(r'^verify$', verify),
     url(r'^test$', Test.as_view()),
@@ -31,13 +31,18 @@ urlpatterns = [
     url(r'^workspace$', Workspace.as_view()),
     url(r'^history$', History.as_view()),
     url(r'^history/$', History.as_view()),
-    url(r'^hasync/$', HistoryAsync.as_view()),
+    url(r'^dashboard$', Dashboard.as_view()),
+    url(r'^dashboard/$', Dashboard.as_view()),
+    url(r'^import/$', Importer.as_view()),
+    url(r'^controlpanel/$', ControlPanel.as_view()),
     url(r'^download/$', Download.as_view()),
     url(r'^delete/$', DeleteAsync.as_view()),
     url(r'^constraints$', WorkspaceAsync.as_view()),
     url(r'^elements/$', WorkspaceAsync.as_view()),
     url(r'^schedule$', WorkspaceAsync.as_view()),
     url(r'^startflow$', StartFlow.as_view()),
+    url(r'^review$', WorkflowReview.as_view()),
+    url(r'^generate$', WorkflowGenerator.as_view()),
     url(r'^myaccount$', MyAccount.as_view()),
     url(r'^updateac', UpdateAccount.as_view()),
     url(r'^featureset$', Featureset.as_view()),
@@ -48,6 +53,8 @@ urlpatterns = [
     url(r'^peekdata/$', PeekFlowData.as_view()),
     url(r'^oauth2callback/$', OAuth2Handler.as_view()),
     url(r'^data/$', DatasourceAsync.as_view()),
-    url(r'^service/$', ColumbusService.as_view()),
+    url(r'^bigquery/$', BigqueryService.as_view()),
+    url(r'^galileo/$', GalileoService.as_view()),
+    url(r'^galileodemo$', Galileo.as_view()),
     url(r'^admin', include(admin.site.urls))
 ]

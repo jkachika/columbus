@@ -268,12 +268,12 @@ function chooseDatasource(choice) {
 }
 
 function getLocalities() {
-    return $.ajax({url: "/service/?name=localities", type: 'GET', dataType: 'json', timeout: 10000});
+    return $.ajax({url: "/bigquery/?name=localities", type: 'GET', dataType: 'json', timeout: 10000});
 }
 
 
 function getFeatures() {
-    return $.ajax({url: "/service/?name=features", type: 'GET', dataType: 'json', timeout: 10000});
+    return $.ajax({url: "/bigquery/?name=features", type: 'GET', dataType: 'json', timeout: 10000});
 }
 
 function showLocality() {
@@ -289,7 +289,7 @@ function showLocality() {
         if (localityShown)
             return false;
         console.log('making service call to bring up the locality');
-        $.get("/service/?name=locality&city=" + locality, function (response, status) {
+        $.get("/bigquery/?name=locality&city=" + locality, function (response, status) {
             map.setZoom(4);
             var heatMap = [];
             $.each(response, function (index, feature) {

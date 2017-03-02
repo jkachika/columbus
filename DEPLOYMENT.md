@@ -87,6 +87,11 @@ $ fusermount -u <mounted directory name>
 ```
 
 ### Installation
+1. Update apt-get
+    ```sh
+    $ sudo apt-get update
+    ```
+    
 1. Install pip
     ```sh
     $ curl -O https://bootstrap.pypa.io/get-pip.py
@@ -125,45 +130,34 @@ $ fusermount -u <mounted directory name>
 
 8. create a directory for virtual env and change the owner to the user
     ```sh
+    $ sudo mkdir /app
+    $ sudo chown johnsoncharles26 /app
     $ sudo mkdir /home/edf
     $ sudo chown johnsoncharles26 /home/edf
     ```
-    
-9. Create a virtual environment(you should be able to create without sudo otherwise navigate to /home/edf and try again)
+
+9. Download the columbusworker-0.1.0.zip distribution to `/home/edf`
+
+
+10. Create a virtual environment(you should be able to create without sudo otherwise navigate to /home/edf and try again)
     ```sh
     $ virtualenv --no-site-packages -p /usr/bin/python2.7 /home/edf/venv
     ```
-    
-10. Navigate to the virtual env and activate it. The prompt should change to (venv).
+
+11. Navigate to the virtual env and activate it. The prompt should change to (venv).
     ```sh
     $ cd /home/edf/venv
     $ source bin/activate
+    (venv) /home/edf/venv$ pip install ../columbusworker-0.1.0.zip  
     ```
     
 11. Create a file **requirements-local.txt** and paste the following in it or use the `requirements.txt` present in the distribution.
     ```sh
     cachetools==1.1.6
     Django==1.9.4
-    earthengine-api==0.1.92
-    geojson==1.3.2
-    google-api-python-client==1.5.2
-    oauth2client==3.0.0
-    oauthlib==1.1.1
-    requesocks==0.10.8
     requests==2.7.0
-    simplejson==3.8.2
     MySQL-python==1.2.5
-    pandas==0.16.2
-    pyOpenSSL==16.0.0
-    python-dateutil==2.4.2
-    requests-oauthlib==0.6.1
-    scikit-learn==0.16.1
-    scilab2py==0.6
-    scipy==0.16.0
-    sympy==0.7.6
-    XlsxWriter==0.7.3
-    lxml==3.6.0
-    pykml==0.1.0
+    columbusworker==0.1.0
     ```
     
 12. Install all the requirements using the following command in (venv) prompt
@@ -252,9 +246,12 @@ If mod_wsgi installation was successful please follow the below steps to deploy 
     ├─── static
     ├─── templates
     ├─── manage.py
+    ├─── requirements.txt
     ```
-    
-2. Note that the secured directory should contain the service account private key files and you should change the file names for the constants `EE_CREDENTIALS`, `BQ_CREDENTIALS`, `FT_CREDENTIALS`, and `CS_CREDENTIALS` in the settings file under columbus directory. If a single service account has access to all of the mentioned services, then use that file name for all these constants else use the file name for the service appropriate service. Note that for Fusion tables, the service account must have access to both fusion tables and google drive.
+
+2. Update the `columbus/prod_settings.py` file appropriately
+
+3. Note that the secured directory should contain the service account private key files and you should change the file names for the constants `EE_CREDENTIALS`, `BQ_CREDENTIALS`, `FT_CREDENTIALS`, and `CS_CREDENTIALS` in the settings file under columbus directory. If a single service account has access to all of the mentioned services, then use that file name for all these constants else use the file name for the service appropriate service. Note that for Fusion tables, the service account must have access to both fusion tables and google drive.
     ```python
     # service account credentials from Google dev console for Google Earth Engine
     EE_CREDENTIALS = os.path.join(SECURED_DIR, 'columbus-earth-engine.json')
@@ -267,6 +264,14 @@ If mod_wsgi installation was successful please follow the below steps to deploy 
     ```
     
 3. If you're folder names are different, update the same in **apache/django.wsgi** in the columbus distribution
+4. Setup the application
+    ```sh
+    (venv) /home/edf/venv/columbus$ python manage.py makemigrations
+    (venv) /home/edf/venv/columbus$ python manage.py migrate
+    (venv) /home/edf/venv/columbus$ python manage.py loaddata typemodel.json
+    (venv) /home/edf/venv/columbus$ python manage.py createsuperuser
+    ```
+
 4. Open the apache conf file and remove the changes you made to test wsgi installation
 5. Add the following after the last `</Directory>` tag
     ```apache

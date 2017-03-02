@@ -39,10 +39,13 @@
                 <a class="dropdown-toggle" data-toggle="dropdown">{{ user.get_full_name }}<span
                         class="caret marginleft"></span></a>
                 <ul class="dropdown-menu menu">
-                    <li><a href="/myaccount">Account</a></li>
+                    <li><a href="/dashboard">Dashboard</a></li>
                     <li><a href="/workspace">Workspace</a></li>
-                    <li><a href="/history">History</a></li>
+                    <li><a href="/myaccount">My Account</a></li>
                     <li class="divider" style="margin-top: 3px; margin-bottom: 3px"></li>
+                    {% if user.is_superuser %}
+                    <li><a href="/controlpanel">Control Panel</a></li>
+                    {% endif %}
                     <li><a href="/logout/">Logout</a></li>
                 </ul>
             </div>

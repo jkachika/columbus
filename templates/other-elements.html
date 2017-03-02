@@ -1,3 +1,4 @@
+{% load staticfiles %}
 {% load edf_filters %}
 {% comment %}To show the growl{% endcomment %}
 {% if estatus != None %}
@@ -6,7 +7,9 @@
 {% endif %}
 <div class="col-xs-4" style="height: inherit; padding: 0px;">
     <h3 id="polygon-title" class="nonbreaking-title" style="margin-bottom: 13px;
-    {% comment %}color: #009688{% endcomment %}">Polygons</h3>
+    {% comment %}color: #009688{% endcomment %}">Polygons
+        <input type="image" src="{% static 'images/fusion-table.png' %}" width="24px" height="24px"
+            onclick="$('#fusion-table-modal').modal();"/></h3>
     <div id="polygon-map"
          style="height: 270px; width: calc(100% - 12px); margin-bottom: 10px; border-radius: 4px;
          border: 1px solid #cccccc"></div>
@@ -36,10 +39,16 @@
         </div>
         <div style="height: 270px; width: calc(100% - 12px); margin-bottom: 10px;">
             <span style="font-weight: 400">Constraints help to filter the unprocessed raw data.</span><br>
-            <div style="margin-top: 10px;" class="form-group">
+            <div style="margin-top: 10px; width: 100%;" class="input-group">
+                <select id="constraint-source" name="constraint-source"
+                        class="selectpicker form-control show-menu-arrow show-tick" title="Data source?"
+                        data-size="5" data-width="35%">
+                    <option value="bigquery" selected>Bigquery</option>
+                    <option value="galileo">Galileo</option>
+                </select>
                 <select id="constraint-table" name="constraint-table" data-live-search="true"
-                        class="selectpicker show-menu-arrow show-tick" title="Choose a table"
-                        data-size="5" data-width="100%">
+                        class="selectpicker form-control show-menu-arrow show-tick" title="Choose a table"
+                        data-size="5" data-width="65%">
                 </select>
             </div>
             <div style="margin-top: 10px;" class="radio">
@@ -95,10 +104,10 @@
             </div>
             <div class="input-group" style="margin-top: 20px">
                 <input type="text" class="form-control" id="constraint-name" name="constraint-name"
-                       placeholder="Name this constraint" required>
+                       placeholder="Name this constraint" style="height: 35px;" required>
                   <span class="input-group-btn">
                     <button class="btn btn-secondary" type="button" onclick="$('#constraint-form').submit();"
-                            style="width: 100px; background-color: #F9A825; color:white">Create
+                            style="width: 100px; background-color: #F9A825; color:white; height: 35px;">Create
                     </button>
                   </span>
             </div>
@@ -114,6 +123,7 @@
                     <div style="font-size: 14px; font-weight: 300; margin-top: 10px;"
                          id="expression-{{ condition.id }}" class="collapse">
                         Table - {{ condition.table }} <br/>
+                        Source - {{ condition.source }} <br/>
                         Expression - {{ condition | str_condition }}
                     </div>
                 </div>
@@ -219,12 +229,12 @@
                     </div>
                 </div>
             </div>
-            <div class="input-group" style="margin-top: 25px;">
+            <div class="input-group" style="margin-top: 20px;">
                 <input name='schedule-name' id='schedule-name' type="text" class="form-control"
-                       placeholder="Name this schedule" required>
+                       placeholder="Name this schedule" style="height: 35px;" required>
               <span class="input-group-btn">
                 <button class="btn btn-secondary" type="button" onclick="$('#schedule-form').submit();"
-                        style="width: 100px; background-color: #039BE5; color:white;">Create
+                        style="width: 100px; background-color: #039BE5; color:white; height: 35px;">Create
                 </button>
               </span>
             </div>
@@ -241,6 +251,28 @@
                          id="schedule-{{ schedule.id }}" class="collapse">{{ schedule | string }}</div>
                 </div>
             {% endfor %}
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="fusion-table-modal" role="dialog" data-keyboard="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body" style="padding-top: 5px">
+                <form id='ft-import-form' role="form" action="/import/" method="post">
+                    {% csrf_token %}
+                    <label class="sub-heading">Import Polygons</label>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <input type="text" class="form-control" id="ft-name" name="ft-name" placeholder="fusion table id"/>
+                    <div class="input-group" style="margin-top: 10px; width: 100%">
+                        <input type="text" class="form-control" style="width: 50%;" name="name-field" placeholder="Name field">
+                        <input type="text" class="form-control" style="width: 50%;" name="geometry-field" placeholder="Geometry field">
+                    </div>
+                    <button id="import-polygons" type="submit" class="btn theme-bg-border"
+                            style="padding: 5px 10px 5px 10px; margin-top: 15px;">Import
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

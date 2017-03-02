@@ -3,9 +3,14 @@
 #################
 scripts/
 secured/
+data/
 pyedf/migrations/0*.py
 *.dot
 *.dia
+*.R
+.R*
+*.pid
+*.sql
 .ipynb_checkpoints
 *.ipynb
 
