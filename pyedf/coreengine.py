@@ -463,26 +463,29 @@ def serialize_query(query, user_settings):
 
 
 def find_pipelines(workflow):
+    # TODO: Change the code to get the pipelines correctly - handling rhomboids
     # elements is already a topologically sorted list
-    elements = list(workflow.elements)[::-1]
+    elements = list(workflow.elements)
     pipelines = []
-    pipeline = []
     for element in elements:
         if isinstance(element, Component):
             if len(element.sys_parents) + len(element.sys_combiners) > 1:
-                pipeline.append(element)
-                pipelines.append(pipeline[::-1])
-                pipeline = []
+                pipelines.append([element])
             else:
-                pipeline.append(element)
                 if element.is_root:
-                    pipelines.append(pipeline[::-1])
-                    pipeline = []
+                    pipelines.append([element])
+                else:
+                    for pipeline in pipelines:
+                        for parent in pipeline:
+                            if parent.id in element.sys_parents or parent.id in element.sys_combiners:
+                                pipeline.append(element)
+                                break
+                        else:
+                            continue
+                        break
         else:
-            pipeline.append(element)
-            pipelines.append(pipeline[::-1])
-            pipeline = []
-    return pipelines[::-1]
+            pipelines.append([element])
+    return pipelines
 
 
 def fetch_data_from_galileo(assistant, pipeline, history, query_dict, data_source):
@@ -530,9 +533,10 @@ class SchedulerAssistant(Thread):
                     destinations = {}
                     if data_source.source == 'galileo':
                         if query.results is None or 'hostFileSize' not in query.results:
-                            async_req = threading.Thread(target=fetch_data_from_galileo,
-                                                         args=(self, pipeline, history, query_dict, data_source))
-                            async_req.start()
+                            # async_req = threading.Thread(target=fetch_data_from_galileo,
+                            #                              args=(self, pipeline, history, query_dict, data_source))
+                            # async_req.start()
+                            fetch_data_from_galileo(self, pipeline, history, query_dict, data_source)
                             continue
                         else:
                             json_response = query.results
@@ -706,7 +710,7 @@ class PipelineScheduler(Thread):
         self.__assistant.start()
         self.__resume_workflows()
         self.awake()
-        self.__assistant.start()
+        # self.__assistant.start()
 
     def is_paused(self):
         return self.__paused
