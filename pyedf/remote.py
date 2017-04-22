@@ -4,6 +4,7 @@ import socket
 
 import getpass
 import paramiko
+import traceback
 from columbus import settings
 
 logger = logging.getLogger(__name__)
@@ -39,6 +40,7 @@ def exec_commands(hostname, commands, port=22, username=None, password=None, key
         return output
     except BaseException as e:
         logger.error("Something went wrong while executing the commands on host %s" % hostname)
+        logger.error(traceback.format_exc())
         return e
     finally:
         release_resource(std_in)
@@ -70,6 +72,7 @@ def install_prerequisites(hostname, port=22, username=None, password=None, key_f
         logger.info(std_out.read())
     except BaseException as e:
         logger.error("Something went wrong while installing the prerequisites on host %s" % hostname)
+        logger.error(traceback.format_exc())
         raise e
     finally:
         release_resource(std_in)
@@ -98,9 +101,19 @@ def install_worker(hostname, virtualenv=None, upgrade=False, port=22, username=N
         std_out = channel.makefile('rb')
         logger.debug("writing commands to channel for host %s" % hostname)
         if not upgrade:
-            std_in.write('mkdir -p %s\nvirtualenv --no-site-packages -p /usr/bin/python2.7 %s\n' % (
-                virtualenv, virtualenv))
-        std_in.write('mkdir -p %s\n' % virtualenv)
+            logger.info("Initiating installation on %s" % hostname)
+            std_in.write(('mkdir -p %s\n'
+                          'virtualenv --no-site-packages -p /usr/bin/python2.7 %s\n'
+                          'exit\n') % (virtualenv, virtualenv))
+            logger.info(std_out.read())
+            release_resource(std_in)
+            release_resource(std_out)
+            release_resource(channel)
+            channel = client.invoke_shell()
+            std_in = channel.makefile('wb')
+            std_out = channel.makefile('rb')
+        else:
+            logger.info("Initiating upgrade on %s" % hostname)
         for installable, local_path in installables:
             remote_path = "%s/%s" % (virtualenv, installable)
             logger.info("Uploading %s to %s:%s" % (local_path, hostname, remote_path))
@@ -113,6 +126,7 @@ def install_worker(hostname, virtualenv=None, upgrade=False, port=22, username=N
         logger.debug("read successful")
     except BaseException as e:
         logger.error("Something went wrong while installing/upgrading the installables on host %s" % hostname)
+        logger.error(traceback.format_exc())
         raise e
     finally:
         release_resource(std_in)
@@ -144,6 +158,7 @@ def start_worker(hostname, master_port, virtualenv=None, port=22, username=None,
         logger.debug("read successful")
     except BaseException as e:
         logger.error("Failed to start the worker on host %s" % hostname)
+        logger.error(traceback.format_exc())
         raise e
     finally:
         release_resource(std_in)
@@ -171,6 +186,7 @@ def force_stop_worker(hostname, port=22, username=None, password=None, key_filen
         logger.debug("read successful")
     except BaseException as e:
         logger.error("Failed to stop the worker on host %s" % hostname)
+        logger.error(traceback.format_exc())
         raise e
     finally:
         release_resource(std_in)

@@ -42,8 +42,6 @@ def verify(request):
         data = request.POST
         username = data.get('username')
         password = data.get('password')
-        logger.info(str(data))
-        logger.info(str(request.GET))
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
@@ -685,7 +683,7 @@ class WorkflowGenerator(_LoggedInMixin, View):
             picklable_flow = coreengine.Workflow(id=0, name=flow.name, flow_id=flow.id, component_id=flow.component_id,
                                                  user=user.username)
             millis = int(round(time.time() * 1000))
-            directory = "%s%s/pickles/proto/wid%d" % (USER_DIRPATH, picklable_flow.user, flow.id)
+            directory = "%s/%s/pickles/proto/wid%d" % (USER_DIRPATH, picklable_flow.user, flow.id)
             filename = "wid%dt%d.pickle" % (flow.id, millis)
             response = picklable_flow.serialize(directory, filename, request.session[USER_SETTINGS])
             local_pickle = "%s/%s" % (directory, filename)

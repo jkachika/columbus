@@ -22,7 +22,7 @@ mimetypes.add_type("image/svg+xml", ".svgz", True)
 WEBSERVICE_HOST = 'http://tomcat.columbus-sandbox.tk/galileo-web-service'
 SUPERVISOR_PORT = 56789
 CONTAINER_SIZE_MB = 256  # 256 MB containers for any target
-USER_DIRPATH = 'D:/_LCL/'
+USER_DIRPATH = 'D:/_LCL'
 USER_GCSPATH = 'columbus-csu.appspot.com'
 TEMP_DIRPATH = 'D:/_TMP/'
 BQ_TABLES = 'bigquery.tables'
