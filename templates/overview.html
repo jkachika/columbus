@@ -27,35 +27,48 @@
                         <a href="http://www.cs.colostate.edu/" class="ext"> Colorado State University</a>.
                         It supports execution of workflows that can be represented as a
                         <a class="ext" href="https://en.wikipedia.org/wiki/Directed_acyclic_graph">Directed Acyclic
-                            Graph (DAG)</a>.
+                            Graph (DAG)</a> operating on spatiotemporal datasets.
                         The fundamental elements of the engine include components, workflows and combiners. A workflow
-                        is
-                        represented as a directed acyclic graph with nodes being components or combiners and edges
+                        is represented as a directed acyclic graph with nodes being components or combiners and edges
                         represent the data flow.</p>
                     <h2 id="overview-components"><a href="#overview-components"></a>Components</h2>
-                    <p>Basic building block of the engine. It can optionally contain a script(python) to process the
-                        incoming data and can specify one or more components and combiners as its parents. Data from the
-                        parents flow as input into the component and the processed data flows out of the component. If
-                        there is no processing involved in a component, the input data itself flows out as output. A
-                        component can be a root in which case it does not have any parents and recieves the input data
-                        from the data source choosen for the workflow at runtime. The input type to a root component is
-                        always a CSV List.</p>
-                    <h2 id="overview-workflows"><a href="#overview-workflows"
+                    <p>They are basic building block of the engine. They can optionally contain a script(python) to
+                        process the incoming data and can specify one or more components and combiners as its parents.
+                        Data from the parents flow as input into the component and the processed data flows out of the
+                        component. </p>
+                    <blockquote>
+                        <p>
+                            If there is no processing involved in a component, the input data itself flows out
+                            as output.
+                        </p>
+                    </blockquote>
+                    <p>
+                        A component can be a root in which case it does not have any parents and recieves
+                        the input data from the data source choosen for the workflow at runtime.
+                    </p>
+                    <blockquote>
+                        <p>
+                            The input type to a root component is always a CSV List.
+                        </p>
+                    </blockquote>
+                    <h2 id="overview-workflows" style="padding-top: 5px;"><a href="#overview-workflows"
                     ></a>Workflows</h2>
                     <p>The <strong>only executable element</strong> of the engine. A workflow allows you to choose one
-                        component as its end point from which the DAG is built. The output of the workflow is the output
+                        component as its end point from which the DAG is built. The output of a workflow is the output
                         of the end component.</p>
                     <h2 id="overview-combiners"><a href="#overview-combiners"
                     ></a>Combiners</h2>
-                    <p>Combiners take a workflow as its input and combines the output of all the instances of that
+                    <p>Combiners take a workflow as its input and combine the output of all the instances of that
                         workflow. It does not have any parents and can optionally contain a script to process the
-                        combined data. When no processing is involved, the input data flows out as output. The input
-                        type to a combiner is always a Generic List.</p>
+                        combined data. When no processing is involved, the input data flows out as output. </p>
+                    <blockquote>
+                        <p>The input type to a combiner is always a List.</p>
+                    </blockquote>
                 </div>
                 <div class="bs-docs-section">
                     <h1 class="page-header" id="output-types"><a href="#output-types"></a>Output Types</h1>
                     <p class="lead">Columbus supports the following output types - CSV List, Feature, Feature
-                        Collection, Multi Collection and Generic List. All output data is transferred as is to
+                        Collection, Multi Collection, and Blob. All output data is transferred as is to
                         subsequent elements in the workflow.</p>
                     <h2 id="ot-csv-list"><a href="#ot-csv-list"></a>CSV List</h2>
                     <p>Data is represented a list of python dictionaries.</p>
@@ -114,14 +127,16 @@
                     <p>Data is represented as a python List of <a class="ext"
                                                                   href="https://pypi.python.org/pypi/geojson/#featurecollection">
                         geojson.FeatureCollection</a>s</p>
-                    <h2 id="ot-generic-list"><a href="#ot-generic-list"></a>Generic List</h2>
-                    <p>Data is represented as a python list of any pickable python objects.</p>
+                    <h2 id="ot-blob"><a href="#ot-blob"></a>Blob</h2>
+                    <p>Data is represented as any pickable python object.</p>
                 </div>
                 <div class="bs-docs-section">
                     <h1 class="page-header" id="script-usage"><a href="#script-usage"></a>Script Usage</h1>
                     <p class="lead">Scripts should make use of the internal variables <code>__input__</code> to get the
                         input data and assign the output to <code>__output__</code> to make the data available to its
-                        dependents.</p>
+                        dependents. Users can also make use of the
+                        <a class="ext" href="https://jkachika.github.io/colorker">worker library methods</a>
+                        in their scripts.</p>
                     <h2 id="su-read-data"><a href="#su-read-data"></a>Reading Data</h2>
                     <p>Reading data for a root component</p>
                     <div class="well" style="margin-top: 10px;">
@@ -143,7 +158,7 @@
                     <p>Reading data for a combiner.</p>
                     <div class="well" style="margin-top: 10px;">
                         <code>
-                            generic_list = __input__
+                            a_list = __input__["workflow"]
                         </code>
                     </div>
 
@@ -160,12 +175,10 @@
                     <p>Components and Combiners can be visualized if the output type is either a Feature Collection or
                         Multi Collection. Enabling visualization on these elements will create a Google Fusion Table for
                         the output produced by these elements and share with the interested parties mentioned in the
-                        component/combiner screen. To get the fusion table key in components whose parents are
-                        visualizers. For multi collections, a single string will have all fusion table keys separated by
-                        comma. In the following example <code>combiner-1</code> is a visualizer that produces multi
-                        collection output
-                        and <code>component-1</code> is also a visualizer that produces a feature collection as its
-                        ouput.</p>
+                        component or combiner page.
+                    </p>
+                    <p>
+                        To get the fusion table key in components whose parents are visualizers. </p>
                     <div class="well" style="margin-top: 10px;">
                         <code>
                             >>> component_ftkey = __input__["ftkey"]["component-1"]<br>
@@ -177,23 +190,39 @@
                         </code>
                     </div>
 
+                    <blockquote>
+                        <p>
+                            For MultiCollection output, a single string will have all fusion table keys separated by
+                            comma. In the above example, <code>combiner-1</code> is a visualizer that produces
+                            MultiCollection output and <code>component-1</code> is also a visualizer that produces a
+                            FeatureCollection as its output.
+                        </p>
+                    </blockquote>
+
+                    <p>Reading fusion tables of a workflow in a combiner </p>
+                    <div class="well" style="margin-top: 10px;">
+                        <code>
+                            a_list = __input__["ftkey"] # list of fusion table identifiers
+                        </code>
+                    </div>
+
                     <h2 id="su-earth-engine"><a href="#su-earth-engine"></a>Earth Engine</h2>
                     <p>Columbus makes use of <a class="ext" href="https://developers.google.com/earth-engine/">Google
                         Earth Engine</a> to do all the GIS computations. Below are a few
                         examples to obtain the earth engine from Columbus, getting the Columbus compatible geojson for
                         the Earth Engine's FeatureCollection and how to use fusion tables with Earth Engine.</p>
-                    <p>obtaining Google Earth Engine to do GIS computations.</p>
+                    <p>Obtaining Google Earth Engine to do GIS computations.</p>
                     <div class="well" style="margin-top: 10px;">
                         <code>
-                            from pyedf.security import CredentialManager<br>
+                            from colorker.security import CredentialManager<br>
                             <br>
                             ee = CredentialManager.get_earth_engine()
                         </code>
                     </div>
-                    <p>obtaining GeoJSON from earth engine FeatureCollection.</p>
+                    <p>Obtaining GeoJSON from Earth Engine FeatureCollection.</p>
                     <div class="well" style="margin-top: 10px;">
                         <code>
-                            from pyedf.gee import get_geojson<br><br>
+                            from colorker.service.gee import get_geojson<br><br>
                             ftc = ee.FeatureCollection('ft:1oMf16v9Iw4lmoOLKmjRB5hnZIXVVcWfK_rGHrtC7')<br>
                             ftc_geojson = get_geojson(ftc)
                         </code>
@@ -212,7 +241,7 @@
                         take control of how the email content should look - whether to use plain text or rich HTML.</p>
                     <div class="well" style="margin-top: 10px;">
                         <code>
-                            from pyedf.email import send_mail<br/><br/>
+                            from colorker.service.email import send_mail<br/><br/>
                             send_email(['abc@xyz.com', 'def@pqr.com'], 'Subject of the Message',<br/>
                             'Hi There! This is a plain text message body',<br/>
                             '&lt;b>Hi There!&lt;/b>&lt;br/>&lt;p>This is a HTML message body&lt;/p>')
@@ -221,9 +250,9 @@
                 </div>
                 <div class="bs-docs-section">
                     <h1 class="page-header" id="limitations"><a href="#limitations"></a>Limitations</h1>
-                    <p class="lead">As of the current version, Columbus supports Google Bigquery and Google Drive as the
-                        Data source options to
-                        the workflow. Only csv files and fusion tables are listed when a user chooses Google Drive as
+                    <p class="lead">As of the current version, Columbus supports Galileo Spacetime, Google Bigquery,
+                        and Google Drive as the data source options to a Workflow.
+                        Only csv files and fusion tables are listed when a user chooses Google Drive as
                         the data source.</p>
                 </div>
                 <div class="bs-docs-section">
@@ -250,7 +279,7 @@
                                 <li><a href="#ot-feature">Feature</a></li>
                                 <li><a href="#ot-ftc">Feature Collection</a></li>
                                 <li><a href="#ot-mftc">Multi Collection</a></li>
-                                <li><a href="#ot-generic-list">Generic List</a></li>
+                                <li><a href="#ot-blob">Blob</a></li>
                             </ul>
                         </li>
                         <li><a href="#script-usage">Script Usage</a>
@@ -282,7 +311,7 @@
             var height = $navigation.css('height') + ' - ' + $header.css('height') + ' - ' + $header.css('marginTop') + ' - '
                     + $header.css('marginBottom') + ' - ' + $footer.css('height') + ' - ' + $footer.css('marginTop') + ' - ' +
                     $footer.css('marginBottom');
-            $('#overview-div').css('min-height', 'calc(100% - ' + height +')');
+            $('#overview-div').css('min-height', 'calc(100% - ' + height + ')');
         });
     </script>
 {% endblock %}
