@@ -14,8 +14,8 @@
     <div class="docs-header" id="content" tabindex="-1">
         <div class="container">
             <h1>Application Usage</h1>
-            <p>Elements of the engine in practice, enabling visualizations, running the workflows and tracking the
-                analysis.</p>
+            <p>Know elements of the engine in practice, enabling visualizations, running the workflows,
+                and tracking the analysis.</p>
         </div>
     </div>
     <div id="usage-div" class="container bs-docs-container">
@@ -25,8 +25,8 @@
                     <a href="#workspace"></a>Workspace
                 </h1>
                     <p class="lead">Workspace is the place to define all your elements viz. Components, Workflows,
-                        Combiners, and Constraints. As of this version, you can create Polygons and Schedules too, but
-                        they are reserved for future purposes and are not used by the application.</p>
+                        Combiners, Constraints, and Polygons. Schedules are reserved for future purpose to associate
+                        with Auto-running Workflows.</p>
                     <h2 id="w-components"><a href="#w-components"></a>Components</h2>
                     <p>Components are of two types - Root Components and Non-Root Components. A root component does not
                         have to specify it's parents but the non-root components do. A component can have another
@@ -215,13 +215,58 @@
                          width="100%" style="margin-bottom: 40px;"/>
                 </div>
                 <div class="bs-docs-section">
-                    <h1 class="page-header" id="history">History</h1>
-                    <p class="lead">This is the place where you find all your workflows. Currently this page shows only
-                        your past 50 runs. The image below explains the sections on this screen.
+                    <h1 class="page-header" id="history" style="margin-top: -30px; padding-top: 0px;">Dashboard</h1>
+                    <p class="lead">This is the place where users find all their workflows. Users can monitor the
+                        workflow execution, see the execution trace, visualize, or analyze the results.
                     </p>
                     <img src="https://raw.githubusercontent.com/jkachika/columbus/master/docs/screenshots/workflow-history.png"
                          width="100%" style="margin-bottom: 40px;"/>
                     <img src="https://raw.githubusercontent.com/jkachika/columbus/master/docs/screenshots/workflow-history-2.png"
+                         width="100%" style="margin-bottom: 40px;"/>
+                    <img src="https://raw.githubusercontent.com/jkachika/columbus/master/docs/screenshots/workflow-history-3.png"
+                         width="100%" style="margin-bottom: 40px;"/>
+                    <img src="https://raw.githubusercontent.com/jkachika/columbus/master/docs/screenshots/workflow-history-4.png"
+                         width="100%" style="margin-bottom: 40px;"/>
+                    <img src="https://raw.githubusercontent.com/jkachika/columbus/master/docs/screenshots/workflow-history-5.png"
+                         width="100%" style="margin-bottom: 40px;"/>
+                    <img src="https://raw.githubusercontent.com/jkachika/columbus/master/docs/screenshots/workflow-history-6.png"
+                         width="100%" style="margin-bottom: 40px;"/>
+                </div>
+                <div class="bs-docs-section">
+                    <h1 class="page-header" id="administration">Control Panel</h1>
+                    <p class="lead">Users setup with superuser privileges using Django's admin site will have access to
+                        the Columbus Control Panel. Administrators can use this page install or upgrade worker software
+                        selectively to the needed machines, monitor the state of each worker machine, or even record
+                        the activity of each machine. There is a high scope of improvement here but it can help with
+                        basic administrative things getting done.
+                    </p>
+                    <blockquote>
+                        <p>
+                            Workflows will not be slated for execution if any of the workers listed in the
+                            Control Panel is not connected to the master.
+                        </p>
+                    </blockquote>
+                    <ul>
+                        <li><strong>Start</strong> &boxh; Starts the Columbus Workers on the selected machines</li>
+                        <li><strong>Stop</strong> &boxh; Stops the Columbus Workers on the selected machines</li>
+                        <li><strong>Force Stop</strong> &boxh;
+                            Kills the Columbus Workers on the selected machines. Use with caution because if you are
+                            running a Worker on Master node, it will result in killing the master too.
+                        </li>
+                        <li><strong>Record Activity</strong> &boxh;
+                            Records the activity of all the Workers to the database for every second.
+                            Use with caution and only when absolutely needed.</li>
+                        <li><strong>Upgrade</strong> &boxh;
+                            If there is a change in the software for Columbus worker and it was prevoiusly installed
+                            on the machines, use this button to upgrade the software on selected machines</li>
+                        <li><strong>Install</strong> &boxh;
+                            Installs the Columbus Worker software on the selected machines. This will create a new
+                            virtual environment if one does not exist already</li>
+                        <li><strong>Install Prerequisites</strong> &boxh;
+                            Installs the prerequisite software stack needed to make the Columbus Worker software
+                            run on the selected machines</li>
+                    </ul>
+                    <img src="https://raw.githubusercontent.com/jkachika/columbus/master/docs/screenshots/control-panel.png"
                          width="100%" style="margin-bottom: 40px;"/>
                 </div>
             </div>
@@ -244,7 +289,8 @@
                             </ul>
                         </li>
                         <li><a href="#running-workflows">Running Workflows</a></li>
-                        <li><a href="#history">History</a></li>
+                        <li><a href="#history">Dashboard</a></li>
+                        <li><a href="#administration">Control Panel</a></li>
                     </ul>
                     <a href="#top" class="back-to-top"> Back to top </a>
                 </nav>

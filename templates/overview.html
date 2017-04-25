@@ -14,7 +14,7 @@
     <div class="docs-header" id="content" tabindex="-1">
         <div class="container">
             <h1>Getting Started</h1>
-            <p>An overview of Columbus, supported output types and how to use in scripts, with examples and more.</p>
+            <p>An overview of Columbus, supported output types and how to use in scripts, with examples, and more.</p>
         </div>
     </div>
     <div id="overview-div" class="container bs-docs-container">
@@ -23,13 +23,16 @@
                 <div class="bs-docs-section"><h1 class="page-header" id="overview">
                     <a href="#overview"></a>Overview
                 </h1>
-                    <p class="lead">Columbus is a workflow engine written in python 2.7 at
+                    <p class="lead">Columbus is a distributed scientific workflow engine for large multidimensional
+                        spatiotemporal datasets. It is written in python 2.7 at
                         <a href="http://www.cs.colostate.edu/" class="ext"> Colorado State University</a>.
                         It supports execution of workflows that can be represented as a
                         <a class="ext" href="https://en.wikipedia.org/wiki/Directed_acyclic_graph">Directed Acyclic
-                            Graph (DAG)</a> operating on spatiotemporal datasets.
-                        The fundamental elements of the engine include components, workflows and combiners. A workflow
-                        is represented as a directed acyclic graph with nodes being components or combiners and edges
+                            Graph (DAG)</a> of computations operating on spatiotemporal datasets.
+                    </p>
+                    <p>
+                        The fundamental elements of the engine include Components, Workflows, and Combiners. A Workflow
+                        is represented as a directed acyclic graph with nodes being Components or Combiners and edges
                         represent the data flow.</p>
                     <h2 id="overview-components"><a href="#overview-components"></a>Components</h2>
                     <p>They are basic building block of the engine. They can optionally contain a script(python) to
