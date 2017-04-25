@@ -96,11 +96,13 @@
                         </code>
                     </div>
                     <h2 id="ot-ftc"><a href="#ot-ftc"></a>Feature Collection</h2>
-                    <p>Data is represented as geojson for Feature and must be an instance of
-                        <a class="ext" href="https://pypi.python.org/pypi/geojson/#feature">geojson.Feature</a>.
-                        "properties" must be a simple dictionary with key as string and value as any of the primitive
-                        types however a Feature can include any picklable value as part of its dictionary apart from
-                        "geometry", "properties" and "type".</p>
+                    <p>Data is represented as geojson for FeatureCollection and must be an instance of
+                        <a class="ext" href="https://pypi.python.org/pypi/geojson/#featurecollection">
+                            geojson.FeatureCollection</a>.
+                        Must contain "columns" dictionary property as part of its dictionary and it should have
+                        the property names of the features in the FeatureCollection as its keys and the data type
+                        of those properties as values. A FeatureCollection can include any picklable value as part
+                        of its dictionary apart from "features", "columns" and "type".</p>
                     <div class="well">
                         <code class="python" data-lang="python">
                             >>> from geojson import Feature, Point, FeatureCollection<br/><br/>
