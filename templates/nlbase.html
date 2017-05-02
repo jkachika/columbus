@@ -21,7 +21,7 @@
     <style>
         body {
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            font-size: 16px;
+            font-size: 15px;
             line-height: 1.42857143;
             color: #333;
             background-color: #fff;
@@ -30,6 +30,8 @@
 
         p.center {
             text-align: center;
+            padding-top: 5px;
+            font-size: 20px;
         }
 
         a.ext {
@@ -39,9 +41,25 @@
 
         @media (min-width: 768px) {
             .lead {
-                font-size: 20px;
+                font-size: 18px;
             }
         }
+
+        ol.publications {
+            padding-left: 15px;
+        }
+
+        a.publication {
+            text-decoration: none;
+            color: #6f5499;
+            font-weight: 500;
+        }
+
+        ol.publications > li {
+            padding-left: 10px;
+            margin-top: 10px;
+        }
+
         blockquote {
             background-color: #FFF9C4;
             border-color: #FFEB3B;
@@ -58,7 +76,7 @@
             <a href="/" class="navbar-brand">Columbus</a>
         </div>
         <nav class="collapse navbar-collapse" id="bs-navbar">
-            <ul class="nav navbar-nav">
+            <ul class="nav navbar-nav" style="padding-top: 1px;">
                 {% block navitems %}
                     <li><a href="/?page=overview">Getting Started</a></li>
                     <li><a href="/?page=usage">Usage</a></li>
@@ -79,14 +97,20 @@
 <footer class="bs-docs-footer">
     <div class="container">
         <ul class="bs-docs-footer-links">
-            <li><a target="_blank" href="https://github.com/jkachika/columbus">GitHub</a></li>
-            <li><a target="_blank" href="https://www.galileo.cs.colostate.edu">Galileo</a></li>
-            <li><a target="_blank" href="http://www.cs.colostate.edu">CSU</a></li>
+            <li><a style="text-decoration: none"
+                   target="_blank" href="https://github.com/jkachika/columbus">GitHub</a></li>
+            <li><a style="text-decoration: none"
+                   target="_blank" href="http://galileo.cs.colostate.edu">Galileo</a></li>
+            <li><a style="text-decoration: none"
+                   target="_blank" href="http://www.cs.colostate.edu">CSU</a></li>
+            <li><a style="text-decoration: none"
+                   target="_blank" href="http://www.cs.colostate.edu/~sangmi">Contact</a></li>
         </ul>
         <p>Design credits: <a href="https://twitter.com/mdo" target="_blank">@mdo</a> and <a
                 href="https://twitter.com/fat" target="_blank">@fat</a>. Maintained by <a
                 href="/?page=people">Johnson Kachikaran</a>.</p>
-        <p>Code licensed <a href="https://github.com/jkachika/columbus/blob/master/LICENSE.txt" target="_blank" rel="license">MIT</a>,
+        <p>Code licensed <a href="https://github.com/jkachika/columbus/blob/master/LICENSE.txt" target="_blank"
+                            rel="license">MIT</a>,
             docs <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="license">CC BY 3.0</a>.</p>
     </div>
 </footer>

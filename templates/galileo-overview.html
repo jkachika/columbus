@@ -140,7 +140,7 @@
         // Load GeoJSON.
         {% comment %}map.data.loadGeoJson(
                 'https://quarkbackend.com/getfile/johnsoncharles26/overview');{% endcomment %}
-        var fsName = 'picarro-gh4-ng2';
+        var fsName = 'picarro-bq-gh4-ng1';
         $.ajax({
             type: "GET",
             url: "/galileo/?route=filesystem&q=overview&name=" + fsName,
@@ -264,8 +264,8 @@
                     (upperLeft.lng() + lowerRight.lng()) / 2);
             infowindow.setPosition(position);
             //infowindow.setOptions({pixelOffset: new google.maps.Size(0, -30)});
-            infowindow.open(map);
-            //new TxtOverlay(position, region, "textOverlay", map)
+            //infowindow.open(map);
+            new TxtOverlay(position, region, "textOverlay", map)
         });
 
         google.maps.event.addListener(map, 'click', function () {
@@ -325,12 +325,18 @@
             console.log(polygon);
         });
 
-        var polygonJSON = [{"lat": "39.740986355883564", "lon": "-105.27099609375"},
+
+        {% comment %}var polygonJSON = [{"lat": "39.740986355883564", "lon": "-105.27099609375"},
             {"lat": "39.876019419621166", "lon": "-105.01007080078125"},
             {"lat": "39.76210275375139", "lon": "-104.63653564453125"},
             {"lat": "39.52522954427751", "lon": "-104.57611083984375"},
             {"lat": "39.32155002466662", "lon": "-104.91119384765625"},
-            {"lat": "39.431950321168635", "lon": "-105.23529052734375"}];
+            {"lat": "39.431950321168635", "lon": "-105.23529052734375"}];{% endcomment %}
+        var polygonJSON = [{"lat": "33.68206818063879", "lon": "-117.982177734375"},
+            {"lat": "33.87725673930016", "lon": "-118.421630859375"},
+            {"lat": "34.2435947296974", "lon": "-118.21975708007812"},
+            {"lat": "34.24245948736849", "lon": "-117.85308837890625"},
+            {"lat": "33.99119576995599", "lon": "-117.520751953125"}];
         var paths = [];
         var bounds = new google.maps.LatLngBounds(); //bounding box of the polygon
         $.each(polygonJSON, function (index, item) {
@@ -355,7 +361,7 @@
     }
 </script>
 <script async defer
-        src="https://maps.google.com/maps/api/js?libraries=places,drawing,visualization&callback=initMapA&key=AIzaSyBmgPNSfhXOslSk0fRyf7t0NG7lZ5s7d8s">
+        src="https://maps.google.com/maps/api/js?libraries=places,drawing,visualization&callback=initMapB&key=AIzaSyBmgPNSfhXOslSk0fRyf7t0NG7lZ5s7d8s">
 </script>
 </body>
 </html>

@@ -2,7 +2,7 @@ import jsonpickle
 import requests
 from colorker.core import Query
 
-GALILEO_SERVICE_HOST = 'http://tomcat.columbus-sandbox.tk/galileo-web-service'
+GALILEO_SERVICE_HOST = 'http://tomcat.columbus.cs.colostate.edu/galileo-web-service'
 
 polygons = [[{"lat": "40.597792003905454", "lon": "-104.77729797363281"},
              {"lat": "40.43545015171254", "lon": "-104.77729797363281"},
@@ -168,13 +168,11 @@ def find_most_spatial_days(identifier):
         print "sp%d,%s,%d,%d" % (index, max_key, max_rows, max_processing_time)
 
 
-paperPolygon = [{"lat": "39.740986355883564", "lon": "-105.27099609375"},
-                {"lat": "39.876019419621166", "lon": "-105.01007080078125"},
-                {"lat": "39.76210275375139", "lon": "-104.63653564453125"},
-                {"lat": "39.52522954427751", "lon": "-104.57611083984375"},
-                {"lat": "39.32155002466662", "lon": "-104.91119384765625"},
-                {"lat": "39.431950321168635", "lon": "-105.23529052734375"}]
-
+paperPolygon = [{"lat": "33.68206818063879", "lon": "-117.982177734375"},
+                    {"lat": "33.87725673930016", "lon": "-118.421630859375"},
+                    {"lat": "34.2435947296974", "lon": "-118.21975708007812"},
+                    {"lat": "34.24245948736849", "lon": "-117.85308837890625"},
+                    {"lat": "33.99119576995599", "lon": "-117.520751953125"}]
 
 def process_all_queries():
     for _ in range(5):

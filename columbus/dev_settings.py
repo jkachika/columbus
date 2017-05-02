@@ -19,7 +19,7 @@ mimetypes.add_type("image/svg+xml", ".svg", True)
 mimetypes.add_type("image/svg+xml", ".svgz", True)
 
 # Webservice for Galileo. Needed only when columbus is integrated to work with galileo.
-WEBSERVICE_HOST = 'http://tomcat.columbus-sandbox.tk/galileo-web-service'
+WEBSERVICE_HOST = 'http://tomcat.columbus.cs.colostate.edu/galileo-web-service'
 SUPERVISOR_PORT = 56789
 CONTAINER_SIZE_MB = 256  # 256 MB containers for any target
 USER_DIRPATH = 'D:/_LCL'
