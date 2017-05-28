@@ -190,22 +190,30 @@ The section describes the installation of the application on Google cloud comput
         
     7. Navigate to `compute-engine-instance-ip/testapp` in a browser. You should see Hello World!
     
-18. If using Galileo Spacetime, deploy the Galileo Webservice by following the instructions [here](https://github.com/jkachika/galileo-web-service). If you wish to deploy the service on the same host as the Columbus and would like to access it from the same domain, then make the following changes to your `apache2.conf` file.
-
-    ```sh
-        $ cd /etc/apache2
-        $ sudo vi apache2.conf
-    ```
-    
-    * Assuming `columbus.xyz` as the domain at which Columbus would be deployed, `tomcat.columbus.xyz` as the domain at which the Galileo webservice would be accessed, and Galileo webservice is deployed on Tomcat on the port `8080`.
+18. If using Galileo Spacetime, deploy the Galileo Webservice by following the instructions [here](https://github.com/jkachika/galileo-web-service). If you wish to deploy the service on the same host as the Columbus and would like to access it from the same domain, then:
+    1. Enable mod_proxy
+        ```sh
+        $ sudo a2enmod proxy
+        $ sudo apache2ctl restart
+        $ sudo a2enmod proxy_http
+        $ sudo apache2ctl restart        
+        ```
+ 
+    2. Make the following changes to your `apache2.conf` file.
+        ```sh
+            $ cd /etc/apache2
+            $ sudo vi apache2.conf
+        ```
+        
+        Assuming `columbus.xyz` as the domain at which Columbus would be deployed, `tomcat.columbus.xyz` as the domain at which the Galileo webservice would be accessed, and Galileo webservice is deployed on Tomcat on the port `8080`.
   
-    ```apache
-    <VirtualHost *:80>
-        ServerName tomcat.columbus.xyz
-        ProxyPass / http://www.columbus.xyz:8080/
-        ProxyPassReverse / http://www.columbus.xyz:8080/
-    </VirtualHost>
-    ```
+        ```apache
+        <VirtualHost *:80>
+            ServerName tomcat.columbus.xyz
+            ProxyPass / http://www.columbus.xyz:8080/
+            ProxyPassReverse / http://www.columbus.xyz:8080/
+        </VirtualHost>
+        ```
 
 19. If mod_wsgi installation was successful please follow the steps listed in [application setup](#appsetup) and update the `columbus/prod_settings.py` and `apache/django.wsgi` files appropriately.
 
