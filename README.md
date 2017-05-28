@@ -147,11 +147,11 @@ The section describes the installation of the application on Google cloud comput
     2. Create a file named "testapp.wsgi" in /home/prod/venv/test and paste the following contents in it
         ```python
         def application(environ, start_response):
-    	    status = '200 OK'
-    	    output = 'Hello World!'
-    	    response_headers = [('Content-type', 'text/plain'),('Content-Length', str(len(output)))]
-    	    start_response(status, response_headers)
-    	    return [output]
+            status = '200 OK'
+            output = 'Hello World!'
+            response_headers = [('Content-type', 'text/plain'),('Content-Length', str(len(output)))]
+            start_response(status, response_headers)
+            return [output]
         ```
         
     3. Make note of the user and group of the directory /home/prod/venv
@@ -201,8 +201,8 @@ The section describes the installation of the application on Google cloud comput
  
     2. Make the following changes to your `apache2.conf` file.
         ```sh
-            $ cd /etc/apache2
-            $ sudo vi apache2.conf
+        $ cd /etc/apache2
+        $ sudo vi apache2.conf
         ```
         
         Assuming `columbus.xyz` as the domain at which Columbus would be deployed, `tomcat.columbus.xyz` as the domain at which the Galileo webservice would be accessed, and Galileo webservice is deployed on Tomcat on the port `8080`.
