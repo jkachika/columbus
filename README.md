@@ -24,7 +24,7 @@ For detailed application usage, click [here](https://github.com/jkachika/columbu
 
 \* *Publication material is presented to ensure timely dissemination of scholarly and technical work. Copyright and all rights therein are retained by authors or by other copyright holders. All persons copying this information are expected to adhere to the terms and constraints invoked by each author's copyright. In most cases, these works may not be reposted without the explicit permission of the copyright holder*.
 
-# Requirements
+## Requirements
 * Linux based OS (preferably Debian Jessie)
 * Python 2.7
 * Database (preferably MySQL)
@@ -39,7 +39,7 @@ For detailed application usage, click [here](https://github.com/jkachika/columbu
 * Columbus Worker (included in the requires sub directory)
 * Apache HTTP server
 
-# Installation and Deployment
+## Installation and Deployment
 The section describes the installation of the application on Google cloud compute engine instance running Debian 8 and deployment to Apache HTTP Server using mod-wsgi. The steps assume that python 2.7 is installed on the machine and that database is MySQL.
 
 1. Update apt-get
@@ -262,7 +262,7 @@ The section describes the installation of the application on Google cloud comput
 21. Navigate to `www.columbus.xyz` and you should be able to access the Columbus application.
 
 
-# <a name="appsetup"></a>Application Setup
+## <a name="appsetup"></a>Application Setup
 This section lists the steps needed to setup the application. Instructions are also included as comments in the `prod_settings.py` file.
 
 1. Open the `apache/django.wsgi` file in the distribution and make sure that the paths listed for the following are correct else update them appropriately.
@@ -504,7 +504,7 @@ This section lists the steps needed to setup the application. Instructions are a
     ```
 
 
-# LICENSE
+## LICENSE
 Copyright (c) 2017 Johnson Kachikaran, Colorado State University
 
 Licensed under MIT License (the "License"). The License is included in the software distribution and you may also view the same [here](https://github.com/jkachika/columbus/blob/master/LICENSE.txt).
