@@ -302,7 +302,7 @@ This section lists the steps needed to setup the application. Instructions are a
         
     7. Place all the service account files in the directory named `secured` in the distribution. Service accounts are mandatory for Google cloud storage, Google fusion tables, and Google drive. Additionally, you would need to obtain a client secret file to allow the application to access end users Google drive. If you use Google Bigquery or Google Earth Engine, you would need service accounts to those.
     
-        ```
+        ```python
         # Place all the service account files in this directory
         SECURED_DIR = os.path.join(BASE_DIR, 'secured')
         
