@@ -10,50 +10,79 @@ mimetypes.add_type("image/svg+xml", ".svg", True)
 mimetypes.add_type("image/svg+xml", ".svgz", True)
 
 # Webservice for Galileo. Needed only when columbus is integrated to work with galileo.
+# See the deployment of Galileo Web Service here. https://github.com/jkachika/galileo-web-service
 WEBSERVICE_HOST = 'http://www.columbus.cs.colostate.edu/galileo-web-service'
+# The port number on which the Columbus master listens for workers to connect and communicate
 SUPERVISOR_PORT = 56789
-CONTAINER_SIZE_MB = 256  # 256 MB containers for any target
-USER_DIRPATH = '/mnt/ldsk/'
-USER_GCSPATH = '/mnt/bdsk/'
-TEMP_DIRPATH = '/mnt/tdsk/'
+# The maximum memory allowed for any process to execute a Target of any workflow. Set this to an optimal value
+# depending on your needs. When a target requires more memory than that is set here, the worker retries the
+# Target by doubling the container size every time.
+CONTAINER_SIZE_MB = 1024  # 1024 MB containers for any target
+# The directory path without trailing slash where the serialization files or pickles are stored on both
+# master and workers. The directory must be present with read and write permissions to the user running the application
+USER_DIRPATH = '/mnt/ldsk'
+# Google cloud storage bucket name for fault tolerance and data transfers between master and workers
+USER_GCSPATH = 'gcs-bucket-name'
+# Temporary directory path without trailing slash where files are stored for temporary purpose such as while uploading
+# data to the cloud or during the creation of fusion tables. Files will not be cleared by the application from this path
+TEMP_DIRPATH = '/mnt/tdsk'
+
+# Do not change. Used for internal purposes.
 BQ_TABLES = 'bigquery.tables'
 BQ_FEATURES = 'bigquery.features'
 BQ_FEATURES_SUFFIX = '::features'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Place all the service account files in this directory
 SECURED_DIR = os.path.join(BASE_DIR, 'secured')
+
+# Do not change. Used for internal purposes.
 REQUIRES_DIR = os.path.join(BASE_DIR, 'requires')
-# service account credentials from Google dev console for Google Earth Engine
+
+# service account credentials from Google dev console for Google Earth Engine. Required if GIS computations are
+# performed in the Targets.
 EE_CREDENTIALS = os.path.join(SECURED_DIR, 'columbus-earth-engine.json')
-# service account credentials from Google dev console for Google Bigquery
+# service account credentials from Google dev console for Google Bigquery. Required if Bigquery serves as one of
+# the data source options.
 BQ_CREDENTIALS = os.path.join(SECURED_DIR, 'earth-outreach-bigquery.json')
-# service account credentials from Google dev console for Google Cloud Storage
+# service account credentials from Google dev console for Google Cloud Storage. Required for fault tolerance and data
+# transfers. The service account listed here must have full permissions to the bucket listed for the property
+# USER_GCSPATH above
 CS_CREDENTIALS = os.path.join(SECURED_DIR, 'columbus-earth-engine.json')
-# service account credentials from Google dev console for Google Fusion Tables and Google Drive
+# service account credentials from Google dev console for Google Fusion Tables and Google Drive. Required to enable
+# web-mapping visualizations.
 FT_CREDENTIALS = os.path.join(SECURED_DIR, 'columbus-earth-engine.json')
-# client secret to gain access to end users google drive
+# client secret to gain access to end users google drive. Required to obtain permission to client's Google Drive if
+# the same is serving as one of the data source options.
 GD_CREDENTIALS = os.path.join(SECURED_DIR, 'columbus-client-secret.json')
 
 # WORKERS CONFIGURATION
-# file having the list of worker host names one on each line
+# the list of fully qualified worker host names. Master must be able to login to all those workers using
+# passwordless SSH.
 WORKERS = [socket.getfqdn()]
 # default is ~/columbus. If specified path must be fully qualified
 WORKER_VIRTUAL_ENV = None
+# port number to SSH into the worker machines
 WORKER_SSH_PORT = 22
+# username to SSH into the worker machines
 WORKER_SSH_USER = 'johnsoncharles26'
+# password if any to SSH into the worker machines. If passwordless SSH is enabled and the private key has a passphrase
+# this must be that passphrase.
 WORKER_SSH_PASSWORD = None
 # fully qualified path for the priavte key file. if not specified ~/.ssh/id_rsa is tried
 WORKER_SSH_PRIVATE_KEY = None
 
 # Scheduler Configuration
 # must be one of local, remote, hybrid
+# learn about the scheduling strategies from the Columbus paper. If not sure, leave the defaults
 PIPELINE_SCHEDULING_STRATEGY = "hybrid"
 # waiting-running target ratio used only for hybrid scheduling strategy.
 # Default is 1, meaning targets are sent to the same worker as long as the number
 # of targets waiting is less than or equal to the number of running targets of any user
 HYBRID_SCHEDULING_WR_RATIO = 1
 
-# Cloud Storage Bucket to use for temporary file storing. The service account key specified for EE_CREDENTIALS must have
-# full access to this bucket.
+# Cloud Storage Bucket to use for temporary file storing while communicating with Google Earth Engine.
+# The service account key specified for EE_CREDENTIALS must have full access to this bucket.
 CS_TEMP_BUCKET = 'staging.columbus-csu.appspot.com'
 
 # Quick-start development settings - unsuitable for production
@@ -64,7 +93,6 @@ CS_TEMP_BUCKET = 'staging.columbus-csu.appspot.com'
 SECRET_KEY = '3bg_5!omle5)+60!(qndj2!#yi+d%2oug2ydo(*^nup+9if0$k'
 # Remove the following debug params after successful deployment
 DEBUG = True
-# TEMPLATE_DEBUG = True
 
 # Application definition
 
@@ -89,17 +117,17 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'columbus.urls'
-# WSGI_APPLICATION = 'columbus.wsgi.application'
 
-# Do not forget to whitelist the ip of compute engine in cloud sql
+# Do not forget to whitelist the IP of compute engine accessing this database in the Google cloud sql, assuming the
+# database is running on Google cloud SQL.
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'database-name',
-        'USER': 'user-name',
-        'PASSWORD': 'password',
-        'HOST': 'mysql-ip-address',
-        'PORT': '3306'
+        'ENGINE': 'django.db.backends.mysql',  # assuming the database is MySQL
+        'NAME': 'database-name',  # name of the database to use
+        'USER': 'user-name',  # user name to use while connecting to the database
+        'PASSWORD': 'password',  # password to use while connecting the database
+        'HOST': 'mysql-ip-address',  # public IP of the database server
+        'PORT': '3306'  # port number of the database server
     }
 }
 
@@ -109,12 +137,8 @@ DATABASES = {
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-# static file directory inclusion
-# STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, 'static'),
-# )
 
-# list of host names to which django server should serve. Must be specified when DEBUG = False
+# list of domain names to which django server should serve. Must be specified when DEBUG = False
 ALLOWED_HOSTS = ['www.columbus.cs.colostate.edu']
 
 TEMPLATES = [
@@ -153,8 +177,8 @@ USE_TZ = True
 
 LOGIN_URL = '/login'
 LOGOUT_URL = '/login'
-# LOGIN_REDIRECT_URL = '/home'
 
+# Change the admin name and email address
 ADMINS = [
     ('Johnson Kachikaran', 'jcharles@cs.colostate.edu'),
 ]
@@ -167,18 +191,20 @@ EMAIL_HOST_PASSWORD = 'sendgrid-password'
 EMAIL_PORT = 2525
 EMAIL_USE_TLS = True
 
+# Use appropriate prefix to add to the subject line of all the emails sent from the application
 EMAIL_SUBJECT_PREFIX = '[Columbus] '
+# Email address of the sender to use while sending emails from the application.
+# Typically, noreply@somedomain.com
 EMAIL_SENDER = 'Sender Name <senders email address including angular brackets>'
 
+# Change the manager name and email address
 MANAGERS = (
     ('Johnson Kachikaran', 'jcharles@cs.colostate.edu'),
 )
 
 SEND_BROKEN_LINK_EMAILS = True
 
-
 # Logger settings
-# dev_settings.py
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
